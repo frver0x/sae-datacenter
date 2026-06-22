@@ -6,6 +6,8 @@ J'ai fait le choix d'implémenter un modèle iBGP en AS unique avec Route-Reflec
 
 ## 🏗️ Choix de conception : l'approche iBGP
 
+![Schéma de la topologie](../Images/lab.png)
+
 Le choix de l'iBGP a été fait délibérément pour explorer une approche alternative et en mesurer les contraintes de configuration réelles. Contrairement à l'eBGP, ce modèle nécessite des ajustements spécifiques :
 
 
