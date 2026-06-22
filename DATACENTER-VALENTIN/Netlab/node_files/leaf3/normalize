@@ -1,0 +1,9 @@
+!
+interface Ethernet1
+ shutdown
+ mac-address caf0.0005.0001
+!
+interface Ethernet2
+ shutdown
+ mac-address caf0.0005.0002
+

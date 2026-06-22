@@ -1,0 +1,87 @@
+{
+  "routing": {
+    "static": [
+      {
+        "ipv4": "0.0.0.0/0",
+        "nexthop": {
+          "ipv4": "10.255.10.1",
+          "intf": "eth1",
+          "idx": 0
+        }
+      }
+    ]
+  },
+  "clab": {
+    "kind": "linux",
+    "config_templates": [
+      {
+        "source": "initial",
+        "target": "",
+        "mode": "ns"
+      },
+      {
+        "source": "routing",
+        "target": "",
+        "mode": "ns"
+      },
+      {
+        "source": "hosts",
+        "target": "/etc/hosts",
+        "mode": "shared"
+      }
+    ],
+    "ports": [
+      "0.0.0.0:3000:3000"
+    ],
+    "binds": [
+      {
+        "target": "/etc/hosts",
+        "source": "node_files/-shared-hosts",
+        "mode": "ro"
+      }
+    ]
+  },
+  "interfaces": [
+    {
+      "ipv4": "10.255.10.2/30",
+      "linkindex": 10,
+      "role": "stub",
+      "type": "lan",
+      "bridge": "life_10",
+      "name": "grafana -> spine1",
+      "ifindex": 1,
+      "ifname": "eth1",
+      "mtu": 1500,
+      "neighbors": [
+        {
+          "ipv4": "10.255.10.1/30",
+          "ifname": "Ethernet6",
+          "node": "spine1"
+        }
+      ]
+    }
+  ],
+  "module": [
+    "routing"
+  ],
+  "box": "grafana/grafana:12.2.9",
+  "role": "host",
+  "mtu": 1500,
+  "_node_config": {
+    "initial": ":ns",
+    "routing": ":ns"
+  },
+  "af": {
+    "ipv4": true
+  },
+  "mgmt": {
+    "ifname": "eth0",
+    "mac": "ca:fe:00:07:00:00",
+    "ipv4": "192.168.121.107"
+  },
+  "hostname": "clab-life-grafana",
+  "netlab_ansible_skip_module": [
+    "initial",
+    "routing"
+  ]
+}

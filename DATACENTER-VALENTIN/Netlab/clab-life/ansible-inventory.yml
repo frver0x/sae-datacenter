@@ -1,0 +1,41 @@
+all:
+  vars:
+    # The generated inventory is assumed to be used from the clab host.
+    # Hence no http proxy should be used. Therefore we make sure the http
+    # module does not attempt using any global http proxy.
+    ansible_httpapi_use_proxy: false
+  children:
+    ceos:
+      vars:
+        # ansible_connection: set ansible_connection variable if required
+        ansible_user: admin
+        ansible_password: admin
+      hosts:
+        clab-life-bleaf:
+          ansible_host: 192.168.121.106
+        clab-life-leaf1:
+          ansible_host: 192.168.121.103
+        clab-life-leaf2:
+          ansible_host: 192.168.121.104
+        clab-life-leaf3:
+          ansible_host: 192.168.121.105
+        clab-life-spine1:
+          ansible_host: 192.168.121.101
+        clab-life-spine2:
+          ansible_host: 192.168.121.102
+    linux:
+      hosts:
+        clab-life-grafana:
+          ansible_host: 192.168.121.107
+        clab-life-librespeed:
+          ansible_host: 192.168.121.112
+        clab-life-nginx1:
+          ansible_host: 192.168.121.110
+        clab-life-nginx2:
+          ansible_host: 192.168.121.111
+        clab-life-prometheus:
+          ansible_host: 192.168.121.108
+        clab-life-remotedesktop:
+          ansible_host: 192.168.121.113
+        clab-life-sflowrt:
+          ansible_host: 192.168.121.109

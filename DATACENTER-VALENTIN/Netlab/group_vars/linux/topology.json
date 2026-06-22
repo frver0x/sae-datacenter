@@ -1,0 +1,33 @@
+{
+  "ansible_network_os": "linux",
+  "ansible_connection": "docker",
+  "ansible_user": "root",
+  "ansible_ssh_pass": "vagrant",
+  "docker_shell": "sh -il",
+  "ansible_python_interpreter": "auto_silent",
+  "netlab_lldp_enable": false,
+  "netlab_net_tools": false,
+  "netlab_linux_distro": "vanilla",
+  "features": {
+    "lag": {
+      "passive": false
+    },
+    "routing": {
+      "static": true
+    },
+    "initial": {
+      "collect": false,
+      "reload": false,
+      "ipv4": {
+        "unnumbered": "peer"
+      },
+      "ipv6": {
+        "lla": true,
+        "use_ra": true
+      },
+      "roles": [
+        "host"
+      ]
+    }
+  }
+}

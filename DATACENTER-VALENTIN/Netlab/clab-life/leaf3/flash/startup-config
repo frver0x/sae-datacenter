@@ -1,0 +1,49 @@
+! Startup-config last modified at Mon Jun 22 07:51:35 2026 by root
+! device: leaf3 (cEOSLab, EOS-4.36.1F-48405728.4361F.1 (engineering build))
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$s.TZy0SXMEtX.zY3$WUox3pg1TBifJUJr2f2.qmrrtC5kiH.D8I.pgaAMnY0FBdHNedODNUSlxksPwMABjT5u22ipGv3d.9rLMGzlP0
+!
+management api http-commands
+   no shutdown
+   !
+   vrf management
+      no shutdown
+!
+no service interface inactive port-id allocation disabled
+!
+service routing protocols model multi-agent
+!
+hostname leaf3
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vrf instance management
+!
+management api gnmi
+   transport grpc default
+      vrf management
+!
+management api netconf
+   transport ssh default
+      vrf management
+!
+interface Ethernet1
+!
+interface Ethernet2
+!
+interface Management0
+   vrf management
+   ip address 192.168.121.105/24
+!
+no ip routing
+no ip routing vrf management
+!
+ip route vrf management 0.0.0.0/0 192.168.121.1
+!
+end

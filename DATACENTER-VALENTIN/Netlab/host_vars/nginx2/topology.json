@@ -1,0 +1,112 @@
+{
+  "clab": {
+    "kind": "linux",
+    "config_templates": [
+      {
+        "source": "initial",
+        "target": "",
+        "mode": "ns"
+      },
+      {
+        "source": "routing",
+        "target": "",
+        "mode": "ns"
+      },
+      {
+        "source": "hosts",
+        "target": "/etc/hosts",
+        "mode": "shared"
+      }
+    ],
+    "ports": [
+      "81:81"
+    ],
+    "binds": [
+      {
+        "target": "/etc/hosts",
+        "source": "node_files/-shared-hosts",
+        "mode": "ro"
+      }
+    ]
+  },
+  "module": [
+    "routing"
+  ],
+  "routing": {
+    "static": [
+      {
+        "ipv4": "0.0.0.0/0",
+        "nexthop": {
+          "ipv4": "172.16.1.254",
+          "intf": "eth1",
+          "idx": 0
+        }
+      }
+    ]
+  },
+  "interfaces": [
+    {
+      "ipv4": "172.16.1.2/24",
+      "linkindex": 14,
+      "type": "lan",
+      "bridge": "life_14",
+      "name": "nginx2 -> [nginx1,leaf1,librespeed,remotedesktop,leaf2]",
+      "ifindex": 1,
+      "ifname": "eth1",
+      "mtu": 1500,
+      "neighbors": [
+        {
+          "ipv4": "172.16.1.1/24",
+          "ifname": "eth1",
+          "node": "nginx1"
+        },
+        {
+          "ifname": "Vlan560",
+          "node": "leaf1",
+          "vlan": {
+            "mode": "bridge",
+            "name": "web"
+          }
+        },
+        {
+          "ipv4": "172.16.1.3/24",
+          "ifname": "eth1",
+          "node": "librespeed"
+        },
+        {
+          "ipv4": "172.16.1.4/24",
+          "ifname": "eth1",
+          "node": "remotedesktop"
+        },
+        {
+          "ifname": "Vlan560",
+          "node": "leaf2",
+          "vlan": {
+            "mode": "bridge",
+            "name": "web"
+          }
+        }
+      ]
+    }
+  ],
+  "box": "nginx:latest",
+  "role": "host",
+  "mtu": 1500,
+  "_node_config": {
+    "initial": ":ns",
+    "routing": ":ns"
+  },
+  "af": {
+    "ipv4": true
+  },
+  "mgmt": {
+    "ifname": "eth0",
+    "mac": "ca:fe:00:0b:00:00",
+    "ipv4": "192.168.121.111"
+  },
+  "hostname": "clab-life-nginx2",
+  "netlab_ansible_skip_module": [
+    "initial",
+    "routing"
+  ]
+}

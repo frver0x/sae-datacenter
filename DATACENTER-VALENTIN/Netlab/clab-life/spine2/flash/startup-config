@@ -1,0 +1,156 @@
+! Startup-config last modified at Mon Jun 22 07:54:20 2026 by admin
+! device: spine2 (cEOSLab, EOS-4.36.1F-48405728.4361F.1 (engineering build))
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$hfj7qDk09Aj9.6no$MdJXRF7me2fFWBuSBgoJ1htzOPPNERAAZ4S7aYScjXFjD/XiavcFo4In161icVm6S08Y/mUdseCemS3U6Smda0
+!
+management api http-commands
+   no shutdown
+   !
+   vrf management
+      no shutdown
+!
+no service interface inactive port-id allocation disabled
+!
+service routing protocols model multi-agent
+!
+logging monitor debugging
+!
+hostname spine2
+ip host bleaf 10.0.0.4 10.202.8.205 10.255.1.14 10.255.2.14
+ip host grafana 10.255.10.2
+ip host leaf1 10.0.0.1 10.255.1.2 10.255.2.2
+ip host leaf2 10.0.0.2 10.255.1.6 10.255.2.6
+ip host leaf3 10.0.0.3 10.255.1.10 10.255.2.10
+ip host librespeed 172.16.1.3
+ip host nginx1 172.16.1.1
+ip host nginx2 172.16.1.2
+ip host prometheus 10.255.11.2
+ip host remotedesktop 172.16.1.4
+ip host sflowrt 10.255.9.2
+ip host spine1 10.255.0.1 10.255.1.1 10.255.1.5 10.255.1.9 10.255.1.13 10.255.3.1 10.255.9.1 10.255.10.1 10.255.11.1
+!
+sflow sample 1000
+sflow destination 10.255.9.2
+sflow source-interface Loopback0
+sflow run
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vrf instance management
+!
+management api gnmi
+   transport grpc default
+      vrf management
+!
+management api netconf
+   transport ssh default
+      vrf management
+!
+aaa authorization exec default local
+!
+interface Ethernet1
+   description spine2 -> leaf1
+   mac-address ca:f0:00:02:00:01
+   no switchport
+   ip address 10.255.2.1/30
+!
+interface Ethernet2
+   description spine2 -> leaf2
+   mac-address ca:f0:00:02:00:02
+   no switchport
+   ip address 10.255.2.5/30
+!
+interface Ethernet3
+   description spine2 -> leaf3
+   mac-address ca:f0:00:02:00:03
+   no switchport
+   ip address 10.255.2.9/30
+!
+interface Ethernet4
+   description spine2 -> bleaf
+   mac-address ca:f0:00:02:00:04
+   no switchport
+   ip address 10.255.2.13/30
+!
+interface Ethernet5
+   description spine2 -> spine1
+   mac-address ca:f0:00:02:00:05
+   no switchport
+   ip address 10.255.3.2/30
+!
+interface Loopback0
+   ip address 10.255.0.2/32
+!
+interface Management0
+   vrf management
+   ip address 192.168.121.102/24
+   no lldp transmit
+   no lldp receive
+!
+ip routing
+no ip routing vrf management
+!
+ip route vrf management 0.0.0.0/0 192.168.121.1
+!
+router bgp 65899
+   neighbor 10.0.0.1 remote-as 65899
+   neighbor 10.0.0.1 update-source Loopback0
+   neighbor 10.0.0.1 description leaf1-evpn
+   neighbor 10.0.0.1 route-reflector-client
+   neighbor 10.0.0.1 send-community extended
+   neighbor 10.0.0.2 remote-as 65899
+   neighbor 10.0.0.2 update-source Loopback0
+   neighbor 10.0.0.2 description leaf2-evpn
+   neighbor 10.0.0.2 route-reflector-client
+   neighbor 10.0.0.2 send-community extended
+   neighbor 10.0.0.3 remote-as 65899
+   neighbor 10.0.0.3 update-source Loopback0
+   neighbor 10.0.0.3 description leaf3-evpn
+   neighbor 10.0.0.3 route-reflector-client
+   neighbor 10.0.0.3 send-community extended
+   neighbor 10.0.0.4 remote-as 65899
+   neighbor 10.0.0.4 update-source Loopback0
+   neighbor 10.0.0.4 description leaf4-evpn
+   neighbor 10.0.0.4 route-reflector-client
+   neighbor 10.0.0.4 send-community extended
+   neighbor 10.255.2.2 remote-as 65899
+   neighbor 10.255.2.2 description underlay spine2 -> leaf1
+   neighbor 10.255.2.2 route-reflector-client
+   neighbor 10.255.2.6 remote-as 65899
+   neighbor 10.255.2.6 description underlay spine2 -> leaf2
+   neighbor 10.255.2.6 route-reflector-client
+   neighbor 10.255.2.10 remote-as 65899
+   neighbor 10.255.2.10 description underlay spine2 -> leaf3
+   neighbor 10.255.2.10 route-reflector-client
+   neighbor 10.255.2.14 remote-as 65899
+   neighbor 10.255.2.14 description underlay spine2 -> leaf4
+   neighbor 10.255.2.14 route-reflector-client
+   neighbor 10.255.3.1 remote-as 65899
+   neighbor 10.255.3.1 description peering spine2 -> spine1
+   !
+   address-family evpn
+      neighbor 10.0.0.1 activate
+      neighbor 10.0.0.2 activate
+      neighbor 10.0.0.3 activate
+      neighbor 10.0.0.4 activate
+   !
+   address-family ipv4
+      neighbor 10.255.2.2 activate
+      neighbor 10.255.2.2 next-hop-self
+      neighbor 10.255.2.6 activate
+      neighbor 10.255.2.6 next-hop-self
+      neighbor 10.255.2.10 activate
+      neighbor 10.255.2.10 next-hop-self
+      neighbor 10.255.2.14 activate
+      neighbor 10.255.2.14 next-hop-self
+      neighbor 10.255.3.1 activate
+      network 10.255.0.2/32
+      network 10.255.3.0/30
+!
+end

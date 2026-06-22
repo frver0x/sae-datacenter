@@ -1,0 +1,45 @@
+#
+# Created by netlab (containerlab Linux host)
+#
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+fe00::0	ip6-localnet
+ff00::0	ip6-mcastprefix
+ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters
+#
+10.0.0.4 bleaf
+10.255.1.14 Ethernet1.bleaf
+10.255.2.14 Ethernet2.bleaf
+10.202.8.205 Ethernet3.bleaf
+10.255.10.2 grafana eth1.grafana
+10.0.0.1 leaf1
+10.255.1.2 Ethernet1.leaf1
+10.255.2.2 Ethernet2.leaf1
+10.0.0.2 leaf2
+10.255.1.6 Ethernet1.leaf2
+10.255.2.6 Ethernet2.leaf2
+10.0.0.3 leaf3
+10.255.1.10 Ethernet1.leaf3
+10.255.2.10 Ethernet2.leaf3
+172.16.1.3 librespeed eth1.librespeed
+172.16.1.1 nginx1 eth1.nginx1
+172.16.1.2 nginx2 eth1.nginx2
+10.255.11.2 prometheus eth1.prometheus
+172.16.1.4 remotedesktop eth1.remotedesktop
+10.255.9.2 sflowrt eth1.sflowrt
+10.255.0.1 spine1
+10.255.1.1 Ethernet1.spine1
+10.255.1.5 Ethernet2.spine1
+10.255.1.9 Ethernet3.spine1
+10.255.1.13 Ethernet4.spine1
+10.255.9.1 Ethernet5.spine1
+10.255.10.1 Ethernet6.spine1
+10.255.11.1 Ethernet7.spine1
+10.255.3.1 Ethernet8.spine1
+10.255.0.2 spine2
+10.255.2.1 Ethernet1.spine2
+10.255.2.5 Ethernet2.spine2
+10.255.2.9 Ethernet3.spine2
+10.255.2.13 Ethernet4.spine2
+10.255.3.2 Ethernet5.spine2

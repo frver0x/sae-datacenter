@@ -1,0 +1,90 @@
+{
+  "loopback": {
+    "ipv4": "10.0.0.4/32",
+    "type": "loopback",
+    "neighbors": [],
+    "virtual_interface": true,
+    "ifindex": 0,
+    "ifname": "Loopback0"
+  },
+  "config": [
+    "_n_bleaf"
+  ],
+  "interfaces": [
+    {
+      "ipv4": "10.255.1.14/30",
+      "linkindex": 4,
+      "type": "p2p",
+      "name": "bleaf -> spine1",
+      "ifindex": 1,
+      "ifname": "Ethernet1",
+      "mac_address": "caf0.0006.0001",
+      "clab": {
+        "name": "et1"
+      },
+      "neighbors": [
+        {
+          "ipv4": "10.255.1.13/30",
+          "ifname": "Ethernet4",
+          "node": "spine1"
+        }
+      ]
+    },
+    {
+      "ipv4": "10.255.2.14/30",
+      "linkindex": 8,
+      "type": "p2p",
+      "name": "bleaf -> spine2",
+      "ifindex": 2,
+      "ifname": "Ethernet2",
+      "mac_address": "caf0.0006.0002",
+      "clab": {
+        "name": "et2"
+      },
+      "neighbors": [
+        {
+          "ipv4": "10.255.2.13/30",
+          "ifname": "Ethernet4",
+          "node": "spine2"
+        }
+      ]
+    },
+    {
+      "ipv4": "10.202.8.205/16",
+      "linkindex": 17,
+      "role": "stub",
+      "type": "stub",
+      "bridge": "life_17",
+      "name": "bleaf -> stub",
+      "ifindex": 3,
+      "ifname": "Ethernet3",
+      "mac_address": "caf0.0006.0003",
+      "clab": {
+        "name": "et3"
+      },
+      "neighbors": []
+    }
+  ],
+  "clab": {
+    "kind": "ceos",
+    "env": {
+      "INTFTYPE": "et",
+      "CLAB_MGMT_VRF": "management"
+    }
+  },
+  "box": "ceos:4.36.1F",
+  "module": [
+    "vlan",
+    "routing"
+  ],
+  "role": "router",
+  "mgmt": {
+    "ipv4": "192.168.121.106",
+    "ifname": "Management0",
+    "mac": "ca:fe:00:06:00:00"
+  },
+  "af": {
+    "ipv4": true
+  },
+  "hostname": "clab-life-bleaf"
+}

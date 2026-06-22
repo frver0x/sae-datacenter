@@ -1,0 +1,66 @@
+---
+bleaf:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 192.168.121.106
+leaf1:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 192.168.121.103
+leaf2:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 192.168.121.104
+leaf3:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 192.168.121.105
+spine1:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 192.168.121.101
+spine2:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 192.168.121.102
+grafana:
+    username: 
+    password: 
+    platform: linux
+    hostname: 192.168.121.107
+librespeed:
+    username: 
+    password: 
+    platform: linux
+    hostname: 192.168.121.112
+nginx1:
+    username: 
+    password: 
+    platform: linux
+    hostname: 192.168.121.110
+nginx2:
+    username: 
+    password: 
+    platform: linux
+    hostname: 192.168.121.111
+prometheus:
+    username: 
+    password: 
+    platform: linux
+    hostname: 192.168.121.108
+remotedesktop:
+    username: 
+    password: 
+    platform: linux
+    hostname: 192.168.121.113
+sflowrt:
+    username: 
+    password: 
+    platform: linux
+    hostname: 192.168.121.109

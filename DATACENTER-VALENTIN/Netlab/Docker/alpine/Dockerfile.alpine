@@ -1,0 +1,18 @@
+FROM alpine:3.20
+
+RUN apk add --no-cache \
+    iptables \
+    ip6tables \
+    iproute2 \
+    bash \
+    tcpdump \
+    bind-tools \
+    curl
+
+RUN echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+
+COPY entrypoint.sh /entrypoint.sh
+COPY nat-rules.sh /nat-rules.sh
+RUN chmod +x /entrypoint.sh /nat-rules.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

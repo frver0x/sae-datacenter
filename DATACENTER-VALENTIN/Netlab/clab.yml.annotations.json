@@ -1,0 +1,271 @@
+{
+  "freeTextAnnotations": [
+    {
+      "id": "freeText_1781770419612",
+      "text": "AS65899",
+      "position": {
+        "x": 714.4591287297892,
+        "y": 218.7811140807076
+      },
+      "fontSize": 14,
+      "fontColor": "#ffffff",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    },
+    {
+      "id": "freeText_1781770450467",
+      "text": "VLAN 560",
+      "position": {
+        "x": 253.79246807247648,
+        "y": 552.8405346831311
+      },
+      "fontSize": 14,
+      "fontColor": "#ffffff",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    },
+    {
+      "id": "freeText_1781860261104",
+      "text": "Réseau de management simulé",
+      "position": {
+        "x": 575.9371554765249,
+        "y": 50.62629094966198
+      },
+      "fontSize": 14,
+      "fontColor": "#ffffff",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    }
+  ],
+  "freeShapeAnnotations": [
+    {
+      "id": "freeShape_1781770391947",
+      "shapeType": "rectangle",
+      "position": {
+        "x": 251.50631625800042,
+        "y": 233.56074856396873
+      },
+      "width": 539,
+      "height": 166,
+      "fillColor": "#00f1f5",
+      "fillOpacity": 0.2,
+      "borderColor": "#ffffff",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "rotation": 0,
+      "zIndex": -1
+    },
+    {
+      "id": "freeShape_1781770435614",
+      "shapeType": "rectangle",
+      "position": {
+        "x": 252.88150022616696,
+        "y": 402.12320836219504
+      },
+      "width": 329,
+      "height": 191,
+      "fillColor": "#1fb814",
+      "fillOpacity": 0.2,
+      "borderColor": "#ffffff",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "rotation": 0,
+      "zIndex": -1
+    },
+    {
+      "id": "freeShape_1781771725758",
+      "shapeType": "rectangle",
+      "position": {
+        "x": 408.39413702409036,
+        "y": 252.1681771931655
+      },
+      "width": 63,
+      "height": 63,
+      "fillColor": "#b8148c",
+      "fillOpacity": 0.2,
+      "borderColor": "#ffffff",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "rotation": 0,
+      "zIndex": -1
+    },
+    {
+      "id": "freeShape_1781772809528",
+      "shapeType": "rectangle",
+      "position": {
+        "x": 571.0594791877239,
+        "y": 255.18292857545464
+      },
+      "width": 59,
+      "height": 53,
+      "fillColor": "#b8148c",
+      "fillOpacity": 0.2,
+      "borderColor": "#ffffff",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "rotation": 0,
+      "zIndex": -1
+    },
+    {
+      "id": "freeShape_1781857618253",
+      "shapeType": "rectangle",
+      "position": {
+        "x": 251.01471147085056,
+        "y": 62.511440110858075
+      },
+      "width": 539,
+      "height": 164,
+      "fillColor": "rgba(127, 127, 127, 0.16)",
+      "fillOpacity": 0.2,
+      "borderColor": "#ffffff",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "rotation": 0,
+      "zIndex": -1
+    }
+  ],
+  "trafficRateAnnotations": [],
+  "groupStyleAnnotations": [],
+  "networkNodeAnnotations": [
+    {
+      "id": "dummy0",
+      "type": "dummy",
+      "label": "dummy0",
+      "position": {
+        "x": 920,
+        "y": 520
+      }
+    },
+    {
+      "id": "macvlan:ens18",
+      "type": "macvlan",
+      "label": "macvlan:ens18",
+      "position": {
+        "x": 760,
+        "y": 460
+      }
+    }
+  ],
+  "nodeAnnotations": [
+    {
+      "id": "spine1",
+      "position": {
+        "x": 420,
+        "y": 260
+      },
+      "icon": "spine"
+    },
+    {
+      "id": "spine2",
+      "position": {
+        "x": 580,
+        "y": 260
+      },
+      "icon": "spine"
+    },
+    {
+      "id": "leaf1",
+      "position": {
+        "x": 280,
+        "y": 380
+      },
+      "icon": "leaf"
+    },
+    {
+      "id": "leaf2",
+      "position": {
+        "x": 420,
+        "y": 380
+      },
+      "labelBackgroundColor": "#000000",
+      "icon": "leaf"
+    },
+    {
+      "id": "leaf3",
+      "position": {
+        "x": 580,
+        "y": 380
+      },
+      "icon": "leaf"
+    },
+    {
+      "id": "nginx1",
+      "position": {
+        "x": 340,
+        "y": 500
+      },
+      "icon": "leaf"
+    },
+    {
+      "id": "grafana",
+      "position": {
+        "x": 500,
+        "y": 120
+      },
+      "icon": "grafana_logo_icon_171048",
+      "iconColor": "#e91cd7",
+      "iconCornerRadius": 0
+    },
+    {
+      "id": "prometheus",
+      "position": {
+        "x": 400,
+        "y": 120
+      },
+      "icon": "prometheus_software_logo-svg",
+      "iconCornerRadius": 0
+    },
+    {
+      "id": "sflowrt",
+      "position": {
+        "x": 300,
+        "y": 120
+      },
+      "icon": "inmon",
+      "iconCornerRadius": 0
+    },
+    {
+      "id": "bleaf",
+      "position": {
+        "x": 700,
+        "y": 380
+      },
+      "icon": "leaf"
+    },
+    {
+      "id": "nginx2",
+      "position": {
+        "x": 280,
+        "y": 500
+      }
+    },
+    {
+      "id": "librespeed",
+      "position": {
+        "x": 420,
+        "y": 500
+      },
+      "icon": "images",
+      "iconCornerRadius": 0
+    },
+    {
+      "id": "remotedesktop",
+      "position": {
+        "x": 500,
+        "y": 500
+      }
+    }
+  ],
+  "edgeAnnotations": [],
+  "aliasEndpointAnnotations": [],
+  "viewerSettings": {}
+}

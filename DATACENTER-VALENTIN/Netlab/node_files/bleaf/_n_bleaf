@@ -1,0 +1,60 @@
+enable
+configure terminal
+
+interface Ethernet3
+  description border-leaf -> salle (externe)
+
+ip route 0.0.0.0/0 10.202.255.254
+
+vlan 560
+  name web
+
+interface Vxlan1
+  vxlan udp-port 4789
+  vxlan source-interface loopback0
+  vxlan vlan 560 vni 560100
+
+router bgp 65899
+  neighbor 10.255.0.1 remote-as 65899
+  neighbor 10.255.0.1 update-source Loopback0
+  neighbor 10.255.0.1 description overlay bleaf -> spine1
+  neighbor 10.255.0.1 send-community extended
+  neighbor 10.255.0.2 remote-as 65899
+  neighbor 10.255.0.2 update-source Loopback0
+  neighbor 10.255.0.2 description overlay bleaf -> spine2
+  neighbor 10.255.0.2 send-community extended
+  neighbor 10.255.1.13 remote-as 65899
+  neighbor 10.255.1.13 description underlay bleaf -> spine1
+  neighbor 10.255.2.13 remote-as 65899
+  neighbor 10.255.2.13 description underlay bleaf -> spine2
+  neighbor 10.202.8.12  remote-as 65084
+  neighbor 10.202.8.12  description peering-Pierre-EVPN
+  neighbor 10.202.8.12  ebgp-multihop 3
+  neighbor 10.202.8.12  send-community extended
+  maximum-paths 2 ecmp 2
+  !
+  address-family evpn
+    neighbor 10.255.0.1 activate
+    neighbor 10.255.0.2 activate
+    neighbor 10.202.8.12 activate 
+  !
+  maximum-paths 2 ecmp 2
+  address-family ipv4
+    neighbor 10.255.1.13 activate
+    neighbor 10.255.2.13 activate
+    neighbor 10.202.8.12 activate
+    network 10.0.0.4/32
+    redistribute static
+    exit
+vlan 560
+  rd 10.0.0.4:560
+  route-target both 65899:560
+  redistribute learned
+
+end
+conf t
+sflow source-interface Loopback0
+sflow vrf default destination 10.255.9.2 6343
+sflow sample 1000
+sflow run
+write memory

@@ -1,0 +1,15 @@
+vlan 560
+ name web
+!
+
+!
+interface Ethernet3
+ switchport
+ switchport access vlan 560
+!
+interface Ethernet4
+ switchport
+ switchport access vlan 560
+!
+interface Vlan560
+

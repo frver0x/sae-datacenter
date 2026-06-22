@@ -1,0 +1,72 @@
+{
+  "loopback": {
+    "ipv4": "10.0.0.3/32",
+    "type": "loopback",
+    "neighbors": [],
+    "virtual_interface": true,
+    "ifindex": 0,
+    "ifname": "Loopback0"
+  },
+  "interfaces": [
+    {
+      "ipv4": "10.255.1.10/30",
+      "linkindex": 3,
+      "type": "p2p",
+      "name": "leaf3 -> spine1",
+      "ifindex": 1,
+      "ifname": "Ethernet1",
+      "mac_address": "caf0.0005.0001",
+      "clab": {
+        "name": "et1"
+      },
+      "neighbors": [
+        {
+          "ipv4": "10.255.1.9/30",
+          "ifname": "Ethernet3",
+          "node": "spine1"
+        }
+      ]
+    },
+    {
+      "ipv4": "10.255.2.10/30",
+      "linkindex": 7,
+      "type": "p2p",
+      "name": "leaf3 -> spine2",
+      "ifindex": 2,
+      "ifname": "Ethernet2",
+      "mac_address": "caf0.0005.0002",
+      "clab": {
+        "name": "et2"
+      },
+      "neighbors": [
+        {
+          "ipv4": "10.255.2.9/30",
+          "ifname": "Ethernet3",
+          "node": "spine2"
+        }
+      ]
+    }
+  ],
+  "clab": {
+    "kind": "ceos",
+    "env": {
+      "INTFTYPE": "et",
+      "CLAB_MGMT_VRF": "management"
+    }
+  },
+  "box": "ceos:4.36.1F",
+  "module": [
+    "vlan",
+    "routing"
+  ],
+  "role": "router",
+  "mgmt": {
+    "ipv4": "192.168.121.105",
+    "ifname": "Management0",
+    "mac": "ca:fe:00:05:00:00"
+  },
+  "af": {
+    "ipv4": true
+  },
+  "hostname": "clab-life-leaf3"
+}

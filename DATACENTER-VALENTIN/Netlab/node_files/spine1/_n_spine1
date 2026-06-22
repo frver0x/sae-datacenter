@@ -1,0 +1,77 @@
+enable
+conf t
+
+interface Loopback0
+  ip address 10.255.0.1/32
+  
+router bgp 65899
+  neighbor 10.0.0.1 remote-as 65899
+  neighbor 10.0.0.1 update-source Loopback0
+  neighbor 10.0.0.1 description leaf1-evpn
+  neighbor 10.0.0.1 route-reflector-client
+  neighbor 10.0.0.1 send-community extended
+  neighbor 10.0.0.2 remote-as 65899
+  neighbor 10.0.0.2 update-source Loopback0
+  neighbor 10.0.0.2 description leaf2-evpn
+  neighbor 10.0.0.2 route-reflector-client
+  neighbor 10.0.0.2 send-community extended
+  neighbor 10.0.0.3 remote-as 65899
+  neighbor 10.0.0.3 update-source Loopback0
+  neighbor 10.0.0.3 description leaf3-evpn
+  neighbor 10.0.0.3 route-reflector-client
+  neighbor 10.0.0.3 send-community extended
+  neighbor 10.0.0.4 remote-as 65899
+  neighbor 10.0.0.4 update-source Loopback0
+  neighbor 10.0.0.4 description leaf4-evpn
+  neighbor 10.0.0.4 route-reflector-client
+  neighbor 10.0.0.4 send-community extended
+  neighbor 10.255.1.2 remote-as 65899
+  neighbor 10.255.1.2 description underlay spine1 -> leaf1
+  neighbor 10.255.1.2 route-reflector-client
+  neighbor 10.255.1.6 remote-as 65899
+  neighbor 10.255.1.6 description underlay spine1 -> leaf2
+  neighbor 10.255.1.6 route-reflector-client
+  neighbor 10.255.1.10 remote-as 65899
+  neighbor 10.255.1.10 description underlay spine1 -> leaf3
+  neighbor 10.255.1.10 route-reflector-client
+  neighbor 10.255.1.14 remote-as 65899
+  neighbor 10.255.1.14 description underlay spine1 -> leaf4
+  neighbor 10.255.1.14 route-reflector-client
+  neighbor 10.255.3.2 remote-as 65899
+  neighbor 10.255.3.2 description peering spine1 -> spine2
+  !
+  address-family evpn
+      neighbor 10.0.0.1 activate
+      neighbor 10.0.0.2 activate
+      neighbor 10.0.0.3 activate
+      neighbor 10.0.0.4 activate
+  !
+  address-family ipv4
+      neighbor 10.255.1.2 activate
+      neighbor 10.255.1.2 next-hop-self
+      neighbor 10.255.1.6 activate
+      neighbor 10.255.1.6 next-hop-self
+      neighbor 10.255.1.10 activate
+      neighbor 10.255.1.10 next-hop-self
+      neighbor 10.255.1.14 activate
+      neighbor 10.255.1.14 next-hop-self
+      ! Routage de la Loopback
+      network 10.255.0.1/32 
+      ! Lien spine1 <-> sflowrt
+      network 10.255.9.0/30 
+      ! Lien spine1 <-> grafana
+      network 10.255.10.0/30 
+      ! Lien spine1 <-> prometheus
+      network 10.255.11.0/30 
+      neighbor 10.255.3.2 activate
+      ! Lien spine1 <-> spine2 
+      network 10.255.3.0/30 
+!
+end
+conf t
+configure
+sflow source-interface Loopback0
+sflow vrf default destination 10.255.9.2 6343
+sflow sample 1000
+sflow run
+write mem
