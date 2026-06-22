@@ -63,7 +63,7 @@ marche dessus avec les mêmes IP.
 
 ### Schéma de l'infrastructure
 
-![Schéma de l'infrastructure](../SAE-DevCloud/Images/Datacenter1.png)
+![Schéma de l'infrastructure](/Images/Datacenter1.png)
 
 
 ## Deuxième Datacenter (Pierre)
