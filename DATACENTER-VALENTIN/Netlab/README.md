@@ -44,9 +44,7 @@ for i in {101..150}; do
 done
 
 netlab status -i default --cleanup
-netlab create
-containerlab deploy -t clab.yml
-netlab initial
+netlab up
 ```
 
 ## Accès aux services
