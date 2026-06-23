@@ -1,0 +1,11 @@
+---
+# Usage: ansible-playbook playbooks/destroy-topo.yml -e "topo=topo-ebgp"
+- name: Destroy containerlab topology
+  hosts: vm220
+  vars:
+    topo: "topo-ebgp"
+  tasks:
+    - name: Destroy topology
+      ansible.builtin.command:
+        cmd: containerlab destroy -t /root/{{ topo }}/topology.clab.yml --cleanup
+      changed_when: true

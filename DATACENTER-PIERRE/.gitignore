@@ -1,0 +1,41 @@
+# Ansible
+*.retry
+ansible/collections/
+
+# Secrets / clés
+*.pem
+id_ed25519*
+.env
+
+# Résultats locaux
+results/
+
+# Containerlab runtime (généré au deploy : TLS, inventories, state)
+containerlab/**/clab-*/
+**/.tls/
+topology-data.json
+ansible-inventory.yml
+nornir-simple-inventory.yml
+authorized_keys
+
+# OS
+.DS_Store
+
+# Outillage local (hors livrable)
+SAE_DevCloud/
+SAE-DevCloud/
+
+# LLM / assistants IA (contexte + notes de travail, jamais livrés)
+.claude/
+CLAUDE.md
+**/CLAUDE.md
+claude-*.md
+.notion_import.py
+AGENTS.md
+GEMINI.md
+.cursor/
+.cursorrules
+.aider*
+.windsurfrules
+.github/copilot-instructions.md
+.codeium/

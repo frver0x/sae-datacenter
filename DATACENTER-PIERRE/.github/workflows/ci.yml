@@ -1,0 +1,58 @@
+name: ci
+
+# Validation statique du lab (configs FRR + YAML + scripts).
+# Tourne sur runners GitHub hébergés — AUCUN accès au réseau du lab, AUCUN déploiement.
+on:
+  push:
+    paths: ["containerlab/**", "*.sh", ".github/workflows/ci.yml"]
+  pull_request:
+    paths: ["containerlab/**", "*.sh"]
+
+jobs:
+  frr-validate:
+    name: Valider les configs FRR (vtysh -C)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: vtysh --dryrun sur chaque frr.conf
+        run: |
+          docker run --rm -v "$PWD":/work -w /work quay.io/frrouting/frr:10.6.1 sh -c '
+            rc=0
+            for f in containerlab/*/configs/*/frr.conf; do
+              [ -f "$f" ] || continue
+              printf "== %s == " "$f"
+              if vtysh -C -f "$f" >/tmp/o 2>&1; then echo OK; else echo "ERREUR"; cat /tmp/o; rc=1; fi
+            done
+            exit $rc
+          '
+
+  yaml-lint:
+    name: Lint des topologies containerlab
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install yamllint
+      - name: yamllint topology.clab.yml
+        run: |
+          yamllint -d "{extends: relaxed, rules: {line-length: disable, comments: disable, document-start: disable, new-line-at-end-of-file: disable}}" \
+            containerlab/*/topology.clab.yml
+
+  shellcheck:
+    name: shellcheck des scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install + run shellcheck (échoue sur erreurs, pas sur le style)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y shellcheck
+          # ne shellcheck que les vrais scripts shell (certains *.sh sont en fait du Python)
+          files=""
+          for f in setup.sh pve-helper.sh containerlab/*.sh; do
+            [ -f "$f" ] || continue
+            if head -1 "$f" | grep -qE 'bin/(ba)?sh|env (ba)?sh|env dash'; then files="$files $f"; fi
+          done
+          echo "Scripts shell vérifiés : $files"
+          shellcheck -S error $files

@@ -1,0 +1,122 @@
+name: topo-ebgp
+
+topology:
+  nodes:
+    spine1:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/spine1/frr.conf:/etc/frr/frr.conf
+        - configs/spine1/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - /bin/sh -c 'ip route del default via 172.20.20.1 dev eth0 2>/dev/null || true'
+
+    spine2:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/spine2/frr.conf:/etc/frr/frr.conf
+        - configs/spine2/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - /bin/sh -c 'ip route del default via 172.20.20.1 dev eth0 2>/dev/null || true'
+
+    leaf1:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/leaf1/frr.conf:/etc/frr/frr.conf
+        - configs/leaf1/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - /bin/sh -c 'ip route del default via 172.20.20.1 dev eth0 2>/dev/null || true'
+
+    leaf2:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/leaf2/frr.conf:/etc/frr/frr.conf
+        - configs/leaf2/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - /bin/sh -c 'ip route del default via 172.20.20.1 dev eth0 2>/dev/null || true'
+
+    leaf3:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/leaf3/frr.conf:/etc/frr/frr.conf
+        - configs/leaf3/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - /bin/sh -c 'ip route del default via 172.20.20.1 dev eth0 2>/dev/null || true'
+
+    bleaf:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/bleaf/frr.conf:/etc/frr/frr.conf
+        - configs/bleaf/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - /bin/sh -c 'ip route del default via 172.20.20.1 dev eth0 2>/dev/null || true'
+        - /bin/sh -c 'apk add --no-cache iptables 2>/dev/null; iptables -t nat -A POSTROUTING -s 192.168.80.0/22 -o eth3 -j MASQUERADE; true'
+        - /bin/sh -c 'ip link add vxlan560100 type vxlan id 560100 local 10.202.8.253 dstport 4789 nolearning 2>/dev/null || true; ip link set vxlan560100 mtu 1450 up; ip link add br-val type bridge 2>/dev/null || true; ip link set br-val mtu 1450 up; ip link set vxlan560100 master br-val 2>/dev/null || true; ip link add vxlan570100 type vxlan id 570100 local 10.202.8.253 dstport 4789 nolearning 2>/dev/null || true; ip link set vxlan570100 mtu 1450 up; ip link add br-val2 type bridge 2>/dev/null || true; ip link set br-val2 mtu 1450 up; ip link set vxlan570100 master br-val2 2>/dev/null || true; true'
+        - /bin/sh -c 'ip link add veth-h0 type veth peer name veth-h1 2>/dev/null || true; ip addr add 172.16.30.253/24 dev veth-h0 2>/dev/null || true; ip link set veth-h0 up; ip link set veth-h1 master br-val; ip link set veth-h1 up; MAC=$(ip link show veth-h1 | awk "/link.ether/ {print \$2}"); ip neigh replace 172.16.30.253 lladdr $MAC dev br-val nud permanent; true'
+        - /bin/sh -c 'ip link add veth-h2 type veth peer name veth-h3 2>/dev/null || true; ip addr add 172.16.31.253/24 dev veth-h2 2>/dev/null || true; ip link set veth-h2 up; ip link set veth-h3 master br-val2; ip link set veth-h3 up; MAC=$(ip link show veth-h3 | awk "/link.ether/ {print \$2}"); ip neigh replace 172.16.31.253 lladdr $MAC dev br-val2 nud permanent; true'
+        - /bin/sh -c 'ip link set eth4 up; ip link add link eth4 name eth4.560 type vlan id 560 2>/dev/null || true; ip link set eth4.560 master br-val mtu 1450 up; ip link add link eth4 name eth4.570 type vlan id 570 2>/dev/null || true; ip link set eth4.570 master br-val2 mtu 1450 up; true'
+
+    leaf4:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/leaf4/frr.conf:/etc/frr/frr.conf
+        - configs/leaf4/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+        - /bin/sh -c 'ip route del default via 172.20.20.1 dev eth0 2>/dev/null || true'
+        - /bin/sh -c 'ip link add br560 type bridge 2>/dev/null || true; ip link set br560 mtu 1450 up; ip link add br570 type bridge 2>/dev/null || true; ip link set br570 mtu 1450 up; for d in eth3 eth4; do ip link set $d up; ip link add link $d name $d.560 type vlan id 560 2>/dev/null || true; ip link set $d.560 master br560 mtu 1450 up; ip link add link $d name $d.570 type vlan id 570 2>/dev/null || true; ip link set $d.570 master br570 mtu 1450 up; done; true'
+
+    br-lxc1:
+      kind: bridge
+
+    br-lxc2:
+      kind: bridge
+
+    br-lxc3:
+      kind: bridge
+
+    br-campus:
+      kind: bridge
+
+    networkutils:
+      kind: linux
+      image: amouat/network-utils
+      exec:
+        - /bin/sh -c 'ip link set eth1 up; ip link add link eth1 name eth1.560 type vlan id 560 2>/dev/null || true; ip addr add 172.16.30.252/24 dev eth1.560 2>/dev/null || true; ip link set eth1.560 mtu 1450 up; ip link add link eth1 name eth1.570 type vlan id 570 2>/dev/null || true; ip addr add 172.16.31.252/24 dev eth1.570 2>/dev/null || true; ip link set eth1.570 mtu 1450 up; ip route add default via 172.16.30.254 2>/dev/null || true; true'
+
+  links:
+    - endpoints: [spine1:eth1, leaf1:eth1]
+    - endpoints: [spine1:eth2, leaf2:eth1]
+    - endpoints: [spine1:eth3, leaf3:eth1]
+    - endpoints: [spine1:eth4, bleaf:eth1]
+    - endpoints: [spine2:eth1, leaf1:eth2]
+    - endpoints: [spine2:eth2, leaf2:eth2]
+    - endpoints: [spine2:eth3, leaf3:eth2]
+    - endpoints: [spine2:eth4, bleaf:eth2]
+    - endpoints: [leaf1:eth3, br-lxc1:lxc1]
+    - endpoints: [leaf2:eth3, br-lxc2:lxc2]
+    - endpoints: [leaf3:eth3, br-lxc3:lxc3]
+    - endpoints: [bleaf:eth3, br-campus:campus1]
+    - endpoints: [spine1:eth5, leaf4:eth1]
+    - endpoints: [spine2:eth5, leaf4:eth2]
+    - endpoints: [leaf4:eth3, bleaf:eth4]
+    - endpoints: [leaf4:eth4, networkutils:eth1]

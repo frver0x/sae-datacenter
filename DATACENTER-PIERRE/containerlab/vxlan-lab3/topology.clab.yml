@@ -1,0 +1,92 @@
+name: vxlan-lab3
+
+topology:
+  nodes:
+    s1:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/s1/frr.conf:/etc/frr/frr.conf
+        - configs/s1/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - ip link add vxlan10010 type vxlan id 10010 local 10.0.0.1 dstport 4789 2>/dev/null || true
+        - ip link add vxlan10011 type vxlan id 10011 local 10.0.0.1 dstport 4789 2>/dev/null || true
+        - ip link add br_red type bridge
+        - ip link add br_blue type bridge
+        - ip link set vxlan10010 master br_red
+        - ip link set eth2 master br_red
+        - ip link set vxlan10011 master br_blue
+        - ip link set eth3 master br_blue
+        - ip link set vxlan10010 up
+        - ip link set vxlan10011 up
+        - ip link set br_red up
+        - ip link set br_blue up
+        - ip addr add 172.16.10.1/24 dev br_red
+        - ip addr add 172.16.11.1/24 dev br_blue
+        - bridge fdb append 00:00:00:00:00:00 dev vxlan10010 dst 10.0.0.2
+        - bridge fdb append 00:00:00:00:00:00 dev vxlan10011 dst 10.0.0.2
+
+    s2:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/s2/frr.conf:/etc/frr/frr.conf
+        - configs/s2/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - ip link add vxlan10010 type vxlan id 10010 local 10.0.0.2 dstport 4789 2>/dev/null || true
+        - ip link add vxlan10011 type vxlan id 10011 local 10.0.0.2 dstport 4789 2>/dev/null || true
+        - ip link add br_red type bridge
+        - ip link add br_blue type bridge
+        - ip link set vxlan10010 master br_red
+        - ip link set eth2 master br_red
+        - ip link set vxlan10011 master br_blue
+        - ip link set eth3 master br_blue
+        - ip link set vxlan10010 up
+        - ip link set vxlan10011 up
+        - ip link set br_red up
+        - ip link set br_blue up
+        - ip addr add 172.16.10.2/24 dev br_red
+        - ip addr add 172.16.11.2/24 dev br_blue
+        - bridge fdb append 00:00:00:00:00:00 dev vxlan10010 dst 10.0.0.1
+        - bridge fdb append 00:00:00:00:00:00 dev vxlan10011 dst 10.0.0.1
+
+    hr1:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - ip addr add 172.16.10.4/24 dev eth1
+        - ip route add default via 172.16.10.1
+        - ip link set eth1 up
+
+    hr2:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - ip addr add 172.16.10.5/24 dev eth1
+        - ip route add default via 172.16.10.2
+        - ip link set eth1 up
+
+    hb1:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - ip addr add 172.16.11.4/24 dev eth1
+        - ip route add default via 172.16.11.1
+        - ip link set eth1 up
+
+    hb2:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - ip addr add 172.16.11.5/24 dev eth1
+        - ip route add default via 172.16.11.2
+        - ip link set eth1 up
+
+  links:
+    - endpoints: [s1:eth1, s2:eth1]
+    - endpoints: [s1:eth2, hr1:eth1]
+    - endpoints: [s2:eth2, hr2:eth1]
+    - endpoints: [s1:eth3, hb1:eth1]
+    - endpoints: [s2:eth3, hb2:eth1]

@@ -1,0 +1,53 @@
+name: deploy (CD manuel)
+
+# CD MANUEL UNIQUEMENT — jamais déclenché par un push (le lab tourne en prod).
+# Nécessite un runner self-hosted placé DANS le réseau du lab (ex: joint via Tailscale) :
+# les runners GitHub hébergés ne joignent pas 10.202.0.0/16 où vivent VM220/VM221.
+#
+# Mise en place du runner (une fois, sur une machine du réseau lab) :
+#   Settings > Actions > Runners > New self-hosted runner  (label: lab)
+# Tant qu'aucun runner "lab" n'est enregistré, ce workflow reste en attente (ne casse rien).
+on:
+  workflow_dispatch:
+    inputs:
+      topo:
+        description: "Topologie à (re)déployer sur VM220"
+        required: true
+        default: "topo-ebgp"
+        type: choice
+        options:
+          - topo-ebgp
+          - topo-ibgp-rr
+          - topo-ospf
+          - topo-mixed
+          - topo-evpn
+      run_benchmark:
+        description: "Lancer le benchmark après déploiement"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  deploy:
+    name: Déployer ${{ inputs.topo }}
+    runs-on: [self-hosted, lab]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Ansible
+        run: |
+          python3 -m pip install --user ansible-core
+          ansible-galaxy collection install -r ansible/requirements.yml
+
+      - name: Sync topologies -> VM220
+        working-directory: ansible
+        run: ansible-playbook playbooks/sync-topologies.yml
+
+      - name: Déployer la topologie
+        working-directory: ansible
+        run: ansible-playbook playbooks/deploy-topo.yml -e "topo=${{ inputs.topo }}"
+
+      - name: Benchmark (optionnel)
+        if: ${{ inputs.run_benchmark }}
+        working-directory: ansible
+        run: ansible-playbook playbooks/benchmark.yml
