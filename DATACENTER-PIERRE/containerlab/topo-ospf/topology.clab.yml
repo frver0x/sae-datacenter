@@ -1,0 +1,88 @@
+name: topo-ospf
+
+topology:
+  nodes:
+    spine1:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/spine1/frr.conf:/etc/frr/frr.conf
+        - configs/spine1/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+
+    spine2:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/spine2/frr.conf:/etc/frr/frr.conf
+        - configs/spine2/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+
+    leaf1:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/leaf1/frr.conf:/etc/frr/frr.conf
+        - configs/leaf1/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+
+    leaf2:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/leaf2/frr.conf:/etc/frr/frr.conf
+        - configs/leaf2/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+
+    leaf3:
+      kind: linux
+      image: quay.io/frrouting/frr:10.6.1
+      binds:
+        - configs/leaf3/frr.conf:/etc/frr/frr.conf
+        - configs/leaf3/daemons:/etc/frr/daemons
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv6.conf.all.forwarding=1
+
+    host1:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - apk add --no-cache iperf3
+        - ip addr add 192.168.1.2/24 dev eth1
+        - ip route replace default via 192.168.1.1
+
+    host2:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - apk add --no-cache iperf3
+        - ip addr add 192.168.2.2/24 dev eth1
+        - ip route replace default via 192.168.2.1
+
+    host3:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - apk add --no-cache iperf3
+        - ip addr add 192.168.3.2/24 dev eth1
+        - ip route replace default via 192.168.3.1
+
+  links:
+    - endpoints: [spine1:eth1, leaf1:eth1]
+    - endpoints: [spine1:eth2, leaf2:eth1]
+    - endpoints: [spine1:eth3, leaf3:eth1]
+    - endpoints: [spine2:eth1, leaf1:eth2]
+    - endpoints: [spine2:eth2, leaf2:eth2]
+    - endpoints: [spine2:eth3, leaf3:eth2]
+    - endpoints: [leaf1:eth3, host1:eth1]
+    - endpoints: [leaf2:eth3, host2:eth1]
+    - endpoints: [leaf3:eth3, host3:eth1]

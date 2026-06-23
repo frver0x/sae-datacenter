@@ -1,0 +1,30 @@
+---
+- name: Bootstrap containerlab host
+  hosts: containerlab_hosts
+  tasks:
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name: [curl, gnupg, ca-certificates, python3-pip]
+        update_cache: true
+
+    - name: Install Docker
+      ansible.builtin.shell:
+        cmd: set -o pipefail && curl -fsSL https://get.docker.com | sh
+        creates: /usr/bin/docker
+        executable: /bin/bash
+
+    - name: Install containerlab
+      ansible.builtin.shell:
+        cmd: set -o pipefail && curl -sL https://containerlab.dev/setup | bash -s "{{ containerlab_version }}"
+        creates: /usr/bin/containerlab
+        executable: /bin/bash
+
+    - name: Pull FRR image
+      community.docker.docker_image:
+        name: "{{ frr_image }}"
+        source: pull
+
+    - name: Pull Alpine image
+      community.docker.docker_image:
+        name: "{{ alpine_image }}"
+        source: pull

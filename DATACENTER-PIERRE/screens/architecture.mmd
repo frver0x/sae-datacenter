@@ -1,0 +1,66 @@
+---
+title: SAE4D01 — Fabric Leaf-Spine + chaîne de métriques Grafana
+---
+graph TB
+  subgraph FABRIC["FABRIC LEAF-SPINE — containerlab / FRR (VM221)"]
+    direction TB
+    subgraph SP["Couche SPINE (coeur)"]
+      direction LR
+      spine1["spine1<br/>10.255.0.1"]:::spine
+      spine2["spine2<br/>10.255.0.2"]:::spine
+    end
+    subgraph LF["Couche LEAF (accès)"]
+      direction LR
+      leaf1["leaf1<br/>10.255.0.11"]:::leaf
+      leaf2["leaf2<br/>10.255.0.12"]:::leaf
+      leaf3["leaf3<br/>10.255.0.13"]:::leaf
+    end
+    subgraph HS["Hosts — générateurs iperf3"]
+      direction LR
+      host1(["host1"]):::host
+      host2(["host2"]):::host
+      host3(["host3"]):::host
+    end
+    spine1 --- leaf1
+    spine1 --- leaf2
+    spine1 --- leaf3
+    spine2 --- leaf1
+    spine2 --- leaf2
+    spine2 --- leaf3
+    leaf1 --- host1
+    leaf2 --- host2
+    leaf3 --- host3
+  end
+
+  subgraph OBS["OBSERVABILITÉ — docker compose (VM221)"]
+    direction TB
+    EXP["clab_exporter.py  :9101<br/>nsenter -> /proc/net/dev<br/>(débit par conteneur/interface)"]:::exp
+    PROM[("Prometheus  :9090<br/>scrape toutes les 2s<br/>stockage time-series")]:::prom
+    GRAF["Grafana  :3000<br/>dashboard 'sae4d01'<br/>requêtes PromQL"]:::graf
+    EXP -->|"scrape /metrics"| PROM
+    PROM -->|"PromQL"| GRAF
+  end
+
+  subgraph BENCH["BENCHMARK iperf3"]
+    direction TB
+    IPERF["iperf3 -J<br/>(TCP / UDP)"]:::bench
+    JSON["/root/results/*.json<br/>(débit par techno)"]:::bench
+    IPERF --> JSON
+  end
+
+  HS -.->|"trafic iperf3 traverse le fabric"| SP
+  LF ==>|"compteurs kernel RX/TX (live)"| EXP
+  JSON ==>|"lecture des fichiers (benchmark)"| EXP
+  GRAF -.->|"affiché à l'écran"| USER(["👤 Toi / le jury"]):::user
+
+  classDef spine fill:#1f6feb,color:#fff,stroke:#0b3d91,stroke-width:2px
+  classDef leaf fill:#2ea043,color:#fff,stroke:#176a2c,stroke-width:2px
+  classDef host fill:#d29922,color:#111,stroke:#9a6a00,stroke-width:1px
+  classDef exp fill:#8957e5,color:#fff,stroke:#5a32a3,stroke-width:2px
+  classDef prom fill:#e85d04,color:#fff,stroke:#9d3a00,stroke-width:2px
+  classDef graf fill:#f23f42,color:#fff,stroke:#a11d20,stroke-width:2px
+  classDef bench fill:#57606a,color:#fff,stroke:#2d333b,stroke-width:1px
+  classDef user fill:#eaeef2,color:#111,stroke:#57606a,stroke-width:1px
+  style FABRIC fill:#eef6ff,stroke:#1f6feb,stroke-width:2px
+  style OBS fill:#f5f0ff,stroke:#8957e5,stroke-width:2px
+  style BENCH fill:#f3f4f6,stroke:#57606a,stroke-width:1px

@@ -1,0 +1,29 @@
+---
+- name: Run benchmark and fetch results
+  hosts: vm220
+  tasks:
+    - name: Run benchmark script
+      ansible.builtin.command:
+        cmd: bash /root/benchmark.sh
+      async: 900
+      poll: 15
+      register: bench_out
+      changed_when: true
+
+    - name: Fetch all result files
+      ansible.builtin.fetch:
+        src: "/root/results/{{ item }}"
+        dest: "../results/"
+        flat: true
+      loop:
+        - topo-ebgp-tcp.json
+        - topo-ebgp-udp.json
+        - topo-ibgp-rr-tcp.json
+        - topo-ibgp-rr-udp.json
+        - topo-ospf-tcp.json
+        - topo-ospf-udp.json
+        - topo-mixed-tcp.json
+        - topo-mixed-udp.json
+      register: fetch_out
+      # Résultat manquant (topo non benchée) = non bloquant.
+      failed_when: false

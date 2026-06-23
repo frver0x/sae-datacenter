@@ -225,10 +225,10 @@ nodes:
       ip virtual-router mac-address 00:1c:73:00:00:99
       
       interface Vlan560
-        ip address virtual 172.16.1.254/24
+        ip address virtual 172.16.30.254/24
 
       interface Vlan570
-        ip address virtual 172.16.2.254/24
+        ip address virtual 172.16.31.254/24
         
       interface Vxlan1
         vxlan source-interface Loopback0
@@ -304,10 +304,10 @@ nodes:
       ip virtual-router mac-address 00:1c:73:00:00:99
 
       interface Vlan560
-        ip address virtual 172.16.1.254/24
+        ip address virtual 172.16.30.254/24
 
       interface Vlan570
-        ip address virtual 172.16.2.254/24
+        ip address virtual 172.16.31.254/24
         
       interface Vxlan1
         vxlan source-interface Loopback0
@@ -383,10 +383,10 @@ nodes:
       ip virtual-router mac-address 00:1c:73:00:00:99
 
       interface Vlan560
-        ip address virtual 172.16.1.254/24
+        ip address virtual 172.16.30.254/24
 
       interface Vlan570
-        ip address virtual 172.16.2.254/24
+        ip address virtual 172.16.31.254/24
         
       interface Vxlan1
         vxlan source-interface Loopback0
@@ -464,16 +464,19 @@ nodes:
         vxlan vlan 560 vni 560100
         vxlan vlan 570 vni 570100
 
+      route-map SET-NH-SELF permit 10
+        match route-type external
+        set ip next-hop 10.0.0.4
+      route-map SET-NH-SELF permit 20
+
       router bgp 65899
         maximum-paths 2 ecmp 2
         neighbor 10.255.0.1 remote-as 65899
-        neighbor 10.255.0.1 next-hop-self
         neighbor 10.255.0.1 update-source Loopback0
         neighbor 10.255.0.1 description overlay bleaf -> spine1
         neighbor 10.255.0.1 send-community extended
 
         neighbor 10.255.0.2 remote-as 65899
-        neighbor 10.255.0.2 next-hop-self
         neighbor 10.255.0.2 update-source Loopback0
         neighbor 10.255.0.2 description overlay bleaf -> spine2
         neighbor 10.255.0.2 send-community extended
@@ -489,23 +492,17 @@ nodes:
         neighbor 10.202.8.253 send-community extended
         neighbor 10.202.8.253 description underlay bleaf -> Pierre
 
-        neighbor 10.202.1.12 remote-as 65001
-        neighbor 10.202.1.12 ebgp-multihop 3
-        neighbor 10.202.1.12 send-community extended
-        neighbor 10.202.1.12 description underlay bleaf -> Soyfoudine
         maximum-paths 2 ecmp 2
 
         vlan 560
           rd 10.0.0.4:560
           route-target both 65899:560
           route-target both 65080:560
-          route-target both 65001:560
           redistribute learned
         vlan 570
           rd 10.0.0.4:570
           route-target both 65899:570
           route-target both 65080:570
-          route-target both 65001:570
           redistribute learned
 
         address-family evpn
@@ -513,6 +510,8 @@ nodes:
           neighbor 10.202.8.253 activate
           neighbor 10.255.0.1 activate
           neighbor 10.255.0.2 activate
+          neighbor 10.255.0.1 route-map SET-NH-SELF out
+          neighbor 10.255.0.2 route-map SET-NH-SELF out
        
           
         address-family ipv4
@@ -560,7 +559,7 @@ nodes:
     module: [ routing ]
     routing.static:
       - ipv4: 0.0.0.0/0
-        nexthop.ipv4: 172.16.1.254
+        nexthop.ipv4: 172.16.30.254
 
   nginx2:
     device: linux
@@ -571,7 +570,7 @@ nodes:
     module: [ routing ]
     routing.static:
       - ipv4: 0.0.0.0/0
-        nexthop.ipv4: 172.16.1.254
+        nexthop.ipv4: 172.16.30.254
 
   librespeed:
     device: linux
@@ -582,26 +581,23 @@ nodes:
     module: [ routing ]
     routing.static:
       - ipv4: 0.0.0.0/0
-        nexthop.ipv4: 172.16.1.254
+        nexthop.ipv4: 172.16.30.254
 
-  remotedesktop:
-    device: linux
-    image: linuxserver/webtop:ubuntu-kde-version-f0194e9c
-    clab:
-      ports:
-        - "3389:3389"
-    module: [ routing ]
-    routing.static:
-      - ipv4: 0.0.0.0/0
-        nexthop.ipv4: 172.16.1.254
-
-  networkutils:
+  networkutils1:
     device: linux
     image: amouat/network-utils
     module: [ routing ]
     routing.static:
       - ipv4: 0.0.0.0/0
-        nexthop.ipv4: 172.16.2.254
+        nexthop.ipv4: 172.16.30.254
+
+  networkutils2:
+    device: linux
+    image: amouat/network-utils
+    module: [ routing ]
+    routing.static:
+      - ipv4: 0.0.0.0/0
+        nexthop.ipv4: 172.16.31.254
 
   # alpine_nat:
   #   device: linux
@@ -668,24 +664,24 @@ links:
   - leaf1:
       vlan.access: web
     nginx1:
-      ipv4: 172.16.1.1/24
+      ipv4: 172.16.30.1/24
   - leaf1:
       vlan.access: web
     nginx2: 
-      ipv4: 172.16.1.2/24
+      ipv4: 172.16.30.2/24
   - leaf2:
       vlan.access: web
     librespeed:
-      ipv4: 172.16.1.3/24
+      ipv4: 172.16.30.3/24
   - leaf2:
       vlan.access: web
-    remotedesktop:
-      ipv4: 172.16.1.4/24
+    networkutils1:
+      ipv4: 172.16.30.4/24
   - bleaf:
       ipv4: 10.202.8.205/16
     clab:
       uplink: ens18
   - leaf3:
       vlan.access: machines
-    networkutils:
-      ipv4: 172.16.2.1/24
+    networkutils2:
+      ipv4: 172.16.31.1/24

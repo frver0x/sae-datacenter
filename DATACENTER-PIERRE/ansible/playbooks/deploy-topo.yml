@@ -1,0 +1,16 @@
+---
+# Usage: ansible-playbook playbooks/deploy-topo.yml -e "topo=topo-ebgp"
+- name: Deploy containerlab topology
+  hosts: vm220
+  vars:
+    topo: "topo-ebgp"
+  tasks:
+    - name: Deploy topology
+      ansible.builtin.command:
+        cmd: containerlab deploy -t /root/{{ topo }}/topology.clab.yml
+      register: deploy_out
+      changed_when: true
+
+    - name: Show result
+      ansible.builtin.debug:
+        msg: "{{ deploy_out.stdout_lines }}"

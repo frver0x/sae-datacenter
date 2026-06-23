@@ -1,0 +1,125 @@
+# DATACENTER-PIERRE — Fabric Leaf-Spine eBGP + VXLAN/EVPN
+
+> SAE4D01 DevCloud — **Pierre URTADO**, BUT R&T (IUT Béziers)
+
+Fabric datacenter leaf-spine (Clos) montée en lab **containerlab + FRR**.
+**Architecture retenue : eBGP en underlay + VXLAN/EVPN en overlay L2**, étendue en **inter-datacenter**
+(EVPN/VXLAN avec le fabric Arista de Valentin). 5 technologies de routage comparées par benchmark chiffré,
+supervisées en Grafana, industrialisées en Ansible + CI GitHub Actions.
+
+📄 **Compte-rendu complet → [`docs/CR-COMPLET.md`](docs/CR-COMPLET.md)**
+
+## Architecture retenue
+
+```
+   Campus 10.202.0.0/16  ◄── EVPN/VXLAN inter-DC ──►  Datacenter Valentin (Arista, AS65899)
+            │
+      [bleaf AS65080]   VTEP 10.202.8.253  ·  VNI 560100 (web) + 570100 (machines)
+       ╱          ╲
+ [spine1 65081] [spine2 65082]          ← underlay eBGP /31, ECMP, BFD
+   ╱    │   ╲   ╱    │   ╲
+[leaf1][leaf2][leaf3]                   ← AS65083 / 65084 / 65085
+   │      │      │
+ [LXC web & services 192.168.80-82.x]
+```
+
+- **Underlay** : eBGP (RFC 7938, un AS par équipement), liens /31, **ECMP + BFD**. Pas de RR ni de
+  next-hop-self à gérer (contraste avec l'iBGP du datacenter de Valentin).
+- **Overlay L2** : VXLAN (UDP 4789) piloté par **BGP EVPN** (control-plane Type-2/3, route-target).
+- **Inter-DC** : un border-leaf `bleaf` dédié étend 2 VLAN vers le fabric de Valentin — prouvé en **Wireshark**.
+- **Résilience** : panne d'un spine → **0 % de perte** (ECMP, le 2ᵉ chemin reste dans la FIB).
+
+## Infrastructure
+
+| Hôte | IP | Rôle |
+|------|-----|------|
+| Proxmox `pvepierre` | `10.202.8.101` | Hyperviseur |
+| **VM220** | `10.202.8.220` | **Prod** — `topo-ebgp` + border-leaf inter-DC + monitoring |
+| **VM221** | `10.202.8.221` | **Lab / bench** — 5 topos + labs VXLAN IRB/Anycast + benchmark |
+
+Accès campus : Tailscale. Outils : containerlab 0.76.1, FRR 10.6.1, Alpine.
+
+## Quickstart
+
+```bash
+git clone https://github.com/Pierre3474/SAE-DevCloud
+cd SAE-DevCloud/DATACENTER-PIERRE
+
+# Bootstrap d'une Debian nue (Docker + containerlab + images, puis déploiement)
+sudo bash setup.sh fabric     # topo-ebgp + EVPN inter-DC
+sudo bash setup.sh bench      # prépare les topos + benchmark
+
+# ou via Ansible (push SSH)
+cd ansible && ansible-galaxy collection install -r requirements.yml
+ansible-playbook playbooks/bootstrap.yml
+ansible-playbook playbooks/deploy-topo.yml -e "topo=topo-ebgp"
+```
+
+## Les 5 topologies (`containerlab/`)
+
+| Topo | Underlay | Overlay | Particularité |
+|------|----------|---------|---------------|
+| **topo-ebgp** | eBGP multi-AS | — | **baseline + prod**, porte le border-leaf EVPN inter-DC |
+| topo-ibgp-rr | iBGP (spines = RR) | — | `next-hop-self force` |
+| topo-ospf | OSPF area 0 | — | `ip ospf network point-to-point` sur /31 |
+| topo-mixed | OSPF | iBGP RR (loopbacks) | modèle DC classique underlay/overlay |
+| topo-evpn | OSPF | **BGP EVPN** | VXLAN VNI 100, Type-2/3, IRB, Anycast GW |
+
+Topologie commune : **2 spines + 3 leaves** (Clos), chaque leaf relié aux 2 spines.
+
+## Benchmark (iperf3, VM221)
+
+| Techno | TCP 1 flux (G) | **TCP 4 flux `-P 4` (G)** | UDP 20G (G) |
+|--------|----------------|----------------------------|-------------|
+| eBGP | 10.50 | **38.91** | 8.35 |
+| OSPF | 9.93 | **38.93** | 8.04 |
+| mixed | 10.05 | **38.46** | 8.12 |
+| iBGP-RR | 10.31 | **38.16** | 8.19 |
+
+→ **Le protocole de routage n'impacte pas le débit** (38–39 G agrégé, écart < bruit veth). Un flux unique
+plafonne à ~10 G (limite veth/cœur) ; l'agrégat 4 flux + ECMP tient ~39 G = la vraie capacité de la fabric.
+La différence se joue ailleurs : convergence, scalabilité, policy.
+
+## Inter-DC EVPN/VXLAN (border-leaf `bleaf`)
+
+`bleaf` (AS65080, VTEP `10.202.8.253`) peer EVPN avec le border-leaf de Valentin (`10.202.8.205`, AS65899).
+Deux VLAN étendus en L2 :
+
+| VNI | VLAN | Plage L2 (côté Pierre) | Passerelle anycast |
+|-----|------|------------------------|--------------------|
+| 560100 | web | `172.16.30.0/24` | `172.16.30.254` |
+| 570100 | machines | `172.16.31.0/24` | `172.16.31.254` |
+
+```bash
+docker exec clab-topo-ebgp-bleaf vtysh -c "show bgp l2vpn evpn summary"   # peer Established
+docker exec clab-topo-ebgp-bleaf vtysh -c "show evpn mac vni 560100"      # MAC distantes via VTEP (BGP, pas flood)
+# preuve data-plane : tcpdump -ni eth3 udp port 4789  → VXLAN vni 560100 + ICMP encapsulé
+```
+
+Capture d'encapsulation reproductible : `docs/captures/evpn-vxlan-interdc.pcap` (filtre Wireshark `vxlan`).
+
+## Monitoring & CI/CD
+
+- **Grafana** : prod fabric `http://10.202.8.102:3000` · bench `http://10.202.8.220:3001` (admin/sae4d01).
+  Stack Prometheus + Grafana + blackbox + node-exporter + exporter maison `clab_exporter.py`
+  (`:9101`, métriques RX/TX par conteneur clab via `nsenter`).
+- **CI** (`.github/workflows/`) : `ci.yml` (validation FRR `vtysh -C` + yamllint + shellcheck) +
+  `ansible.yml` (syntax-check + ansible-lint). **CD** : `deploy.yml` (manuel, runner self-hosted).
+
+## Commandes utiles
+
+```bash
+cd containerlab/topo-ebgp && containerlab deploy -t topology.clab.yml
+containerlab destroy -t topology.clab.yml --cleanup
+containerlab inspect --all
+docker exec clab-topo-ebgp-spine1 vtysh -c "show bgp summary"
+bash containerlab/benchmark.sh
+```
+
+## Documentation (`docs/`)
+
+- **[`CR-COMPLET.md`](docs/CR-COMPLET.md)** — compte-rendu complet (18 sections + annexe configs : architecture,
+  5 labs, EVPN/VXLAN, IRB/Anycast, inter-DC, résilience, benchmark, observabilité, IaC/CI-CD).
+- `DEMARCHE.md`, `FICHE-ORAL.md`, `Infra-Physique.md`, `Leaf-Spine.md` — démarche, oral, infra physique.
+- `notes/`, `notion/` — journaux de travail · `pdf/` — exports · `captures/` — pcap.
+- `screens/` — captures (BGP, EVPN, Wireshark, Grafana, topologies).

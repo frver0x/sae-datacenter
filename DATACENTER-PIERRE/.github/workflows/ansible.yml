@@ -1,0 +1,36 @@
+name: ansible
+
+on:
+  push:
+    paths: ["ansible/**", ".github/workflows/ansible.yml"]
+  pull_request:
+    paths: ["ansible/**"]
+
+defaults:
+  run:
+    working-directory: ansible
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: install tooling
+        run: pip install ansible-core ansible-lint
+
+      - name: install collections
+        run: ansible-galaxy collection install -r requirements.yml
+
+      - name: syntax-check playbooks
+        run: |
+          for pb in playbooks/*.yml; do
+            ansible-playbook "$pb" --syntax-check
+          done
+
+      - name: ansible-lint
+        run: ansible-lint playbooks/

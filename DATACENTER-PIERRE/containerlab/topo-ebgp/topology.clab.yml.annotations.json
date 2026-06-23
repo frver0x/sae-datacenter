@@ -1,0 +1,36 @@
+{
+  "freeTextAnnotations": [
+    { "id": "ft-bordure", "text": "Bordure inter-DC — EVPN/VXLAN  (bleaf AS65080  →  Valentin AS65899)", "position": { "x": 195, "y": 26 }, "fontSize": 13, "fontColor": "#e0a02a", "fontWeight": "bold", "fontStyle": "normal", "textDecoration": "none", "textAlign": "left", "fontFamily": "Arial" },
+    { "id": "ft-spines", "text": "Spines — underlay eBGP  (AS65081 / AS65082)", "position": { "x": 148, "y": 256 }, "fontSize": 13, "fontColor": "#4f9bff", "fontWeight": "bold", "fontStyle": "normal", "textDecoration": "none", "textAlign": "left", "fontFamily": "Arial" },
+    { "id": "ft-leaves", "text": "Leaves — accès  (AS65083 / 84 / 85)", "position": { "x": 128, "y": 386 }, "fontSize": 13, "fontColor": "#3fb950", "fontWeight": "bold", "fontStyle": "normal", "textDecoration": "none", "textAlign": "left", "fontFamily": "Arial" },
+    { "id": "ft-lxc", "text": "Services LXC — campus 192.168.80-82.x", "position": { "x": 128, "y": 516 }, "fontSize": 13, "fontColor": "#a371f7", "fontWeight": "bold", "fontStyle": "normal", "textDecoration": "none", "textAlign": "left", "fontFamily": "Arial" },
+    { "id": "ft-interdc", "text": "Accès inter-DC — leaf4 (AS65086) + networkutils (VLAN 560/570)", "position": { "x": 470, "y": 386 }, "fontSize": 12, "fontColor": "#e0a02a", "fontWeight": "bold", "fontStyle": "normal", "textDecoration": "none", "textAlign": "left", "fontFamily": "Arial" }
+  ],
+  "freeShapeAnnotations": [
+    { "id": "zone-bordure", "shapeType": "rectangle", "position": { "x": 230, "y": 20 }, "width": 140, "height": 205, "fillColor": "#d29922", "fillOpacity": 0.13, "borderColor": "#d29922", "borderWidth": 1, "borderStyle": "dashed", "rotation": 0, "zIndex": -1 },
+    { "id": "zone-spines", "shapeType": "rectangle", "position": { "x": 140, "y": 250 }, "width": 320, "height": 95, "fillColor": "#1f6feb", "fillOpacity": 0.11, "borderColor": "#1f6feb", "borderWidth": 1, "borderStyle": "dashed", "rotation": 0, "zIndex": -1 },
+    { "id": "zone-leaves", "shapeType": "rectangle", "position": { "x": 120, "y": 380 }, "width": 360, "height": 95, "fillColor": "#2ea043", "fillOpacity": 0.11, "borderColor": "#2ea043", "borderWidth": 1, "borderStyle": "dashed", "rotation": 0, "zIndex": -1 },
+    { "id": "zone-lxc", "shapeType": "rectangle", "position": { "x": 120, "y": 510 }, "width": 360, "height": 95, "fillColor": "#8957e5", "fillOpacity": 0.11, "borderColor": "#8957e5", "borderWidth": 1, "borderStyle": "dashed", "rotation": 0, "zIndex": -1 },
+    { "id": "zone-interdc", "shapeType": "rectangle", "position": { "x": 495, "y": 380 }, "width": 95, "height": 225, "fillColor": "#d29922", "fillOpacity": 0.10, "borderColor": "#d29922", "borderWidth": 1, "borderStyle": "dashed", "rotation": 0, "zIndex": -1 }
+  ],
+  "trafficRateAnnotations": [],
+  "groupStyleAnnotations": [],
+  "networkNodeAnnotations": [],
+  "nodeAnnotations": [
+    { "id": "br-campus", "position": { "x": 300, "y": 60 } },
+    { "id": "bleaf", "position": { "x": 300, "y": 165 } },
+    { "id": "spine1", "position": { "x": 220, "y": 295 } },
+    { "id": "spine2", "position": { "x": 380, "y": 295 } },
+    { "id": "leaf1", "position": { "x": 180, "y": 425 } },
+    { "id": "leaf2", "position": { "x": 300, "y": 425 } },
+    { "id": "leaf3", "position": { "x": 420, "y": 425 } },
+    { "id": "leaf4", "position": { "x": 540, "y": 425 } },
+    { "id": "br-lxc1", "position": { "x": 180, "y": 555 } },
+    { "id": "br-lxc2", "position": { "x": 300, "y": 555 } },
+    { "id": "br-lxc3", "position": { "x": 420, "y": 555 } },
+    { "id": "networkutils", "position": { "x": 540, "y": 555 } }
+  ],
+  "edgeAnnotations": [],
+  "aliasEndpointAnnotations": [],
+  "viewerSettings": {}
+}
