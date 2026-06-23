@@ -44,6 +44,51 @@
       "textDecoration": "none",
       "textAlign": "left",
       "fontFamily": "Arial"
+    },
+    {
+      "id": "freeText_1782127634531",
+      "text": "VLAN 570",
+      "position": {
+        "x": 567.2338600701579,
+        "y": 550.2855066237067
+      },
+      "fontSize": 14,
+      "fontColor": "#ffffff",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    },
+    {
+      "id": "freeText_1782127722292",
+      "text": "172.16.1.254",
+      "position": {
+        "x": 328.38957115983555,
+        "y": 387.39360682987103
+      },
+      "fontSize": 14,
+      "fontColor": "#ffffff",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    },
+    {
+      "id": "freeText_1782127733730",
+      "text": "172.16.2.254",
+      "position": {
+        "x": 622.9819745929982,
+        "y": 383.4382932529042
+      },
+      "fontSize": 14,
+      "fontColor": "#ffffff",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
     }
   ],
   "freeShapeAnnotations": [
@@ -71,7 +116,7 @@
         "x": 252.88150022616696,
         "y": 402.12320836219504
       },
-      "width": 329,
+      "width": 309,
       "height": 191,
       "fillColor": "#1fb814",
       "fillOpacity": 0.2,
@@ -127,6 +172,23 @@
       "fillColor": "rgba(127, 127, 127, 0.16)",
       "fillOpacity": 0.2,
       "borderColor": "#ffffff",
+      "borderWidth": 1,
+      "borderStyle": "solid",
+      "rotation": 0,
+      "zIndex": -1
+    },
+    {
+      "id": "freeShape_1782127615692",
+      "shapeType": "rectangle",
+      "position": {
+        "x": 563.3121159725545,
+        "y": 402.5664789473096
+      },
+      "width": 150,
+      "height": 190,
+      "fillColor": "#6d24db",
+      "fillOpacity": 0.2,
+      "borderColor": "#fbf9f9",
       "borderWidth": 1,
       "borderStyle": "solid",
       "rotation": 0,
@@ -236,7 +298,7 @@
     {
       "id": "bleaf",
       "position": {
-        "x": 700,
+        "x": 720,
         "y": 380
       },
       "icon": "leaf"
@@ -261,6 +323,13 @@
       "id": "remotedesktop",
       "position": {
         "x": 500,
+        "y": 500
+      }
+    },
+    {
+      "id": "networkutils",
+      "position": {
+        "x": 620,
         "y": 500
       }
     }

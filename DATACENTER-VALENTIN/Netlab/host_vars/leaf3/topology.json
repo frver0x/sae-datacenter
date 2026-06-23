@@ -7,6 +7,9 @@
     "ifindex": 0,
     "ifname": "Loopback0"
   },
+  "config": [
+    "_n_leaf3"
+  ],
   "interfaces": [
     {
       "ipv4": "10.255.1.10/30",
@@ -45,6 +48,48 @@
           "node": "spine2"
         }
       ]
+    },
+    {
+      "vlan": {
+        "access": "machines",
+        "access_id": 570
+      },
+      "linkindex": 18,
+      "type": "lan",
+      "bridge": "life_18",
+      "ifindex": 3,
+      "ifname": "Ethernet3",
+      "clab": {
+        "name": "et3"
+      },
+      "neighbors": [
+        {
+          "ipv4": "172.16.2.1/24",
+          "ifname": "eth1",
+          "node": "networkutils"
+        }
+      ],
+      "name": "[Access VLAN machines] leaf3 -> networkutils"
+    },
+    {
+      "vlan": {
+        "mode": "bridge",
+        "name": "machines"
+      },
+      "type": "svi",
+      "ifindex": 40000,
+      "ifname": "Vlan570",
+      "name": "VLAN machines (570) -> [networkutils]",
+      "virtual_interface": true,
+      "neighbors": [
+        {
+          "ipv4": "172.16.2.1/24",
+          "ifname": "eth1",
+          "node": "networkutils"
+        }
+      ],
+      "bridge_group": 1,
+      "role": "stub"
     }
   ],
   "clab": {
@@ -68,5 +113,19 @@
   "af": {
     "ipv4": true
   },
-  "hostname": "clab-life-leaf3"
+  "hostname": "clab-life-leaf3",
+  "vlans": {
+    "machines": {
+      "id": 570,
+      "mode": "bridge",
+      "prefix": {
+        "ipv4": "172.16.1.0/24",
+        "allocation": "id_based"
+      },
+      "bridge_group": 1
+    }
+  },
+  "vlan": {
+    "max_bridge_group": 1
+  }
 }

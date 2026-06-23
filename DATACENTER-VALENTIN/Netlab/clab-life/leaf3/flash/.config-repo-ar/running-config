@@ -2,7 +2,7 @@
 !
 no aaa root
 !
-username admin privilege 15 role network-admin secret sha512 $6$s.TZy0SXMEtX.zY3$WUox3pg1TBifJUJr2f2.qmrrtC5kiH.D8I.pgaAMnY0FBdHNedODNUSlxksPwMABjT5u22ipGv3d.9rLMGzlP0
+username admin privilege 15 role network-admin secret sha512 $6$J9IxIjZTg.nuJr3x$KsgBxWK.qUYi2.yvCT9/te175h34p3E4nUQ5uWMKPZqJikUu3WzTCSLyR58mrihjI0r8YcR9PADdVkZSowTav/
 !
 management api http-commands
    no shutdown
@@ -22,6 +22,7 @@ ip host grafana 10.255.10.2
 ip host leaf1 10.0.0.1 10.255.1.2 10.255.2.2
 ip host leaf2 10.0.0.2 10.255.1.6 10.255.2.6
 ip host librespeed 172.16.1.3
+ip host networkutils 172.16.2.1
 ip host nginx1 172.16.1.1
 ip host nginx2 172.16.1.2
 ip host prometheus 10.255.11.2
@@ -35,6 +36,9 @@ spanning-tree mode mstp
 system l1
    unsupported speed action error
    unsupported error-correction action error
+!
+vlan 570
+   name machines
 !
 vrf instance management
 !
@@ -60,6 +64,10 @@ interface Ethernet2
    no switchport
    ip address 10.255.2.10/30
 !
+interface Ethernet3
+   description [Access VLAN machines] leaf3 -> networkutils
+   switchport access vlan 570
+!
 interface Loopback0
    ip address 10.0.0.3/32
 !
@@ -68,6 +76,9 @@ interface Management0
    ip address 192.168.121.105/24
    no lldp transmit
    no lldp receive
+!
+interface Vlan570
+   description VLAN machines (570) -> [networkutils] [stub]
 !
 ip routing
 no ip routing vrf management

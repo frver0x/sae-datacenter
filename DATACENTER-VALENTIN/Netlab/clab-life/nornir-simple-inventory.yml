@@ -39,6 +39,11 @@ librespeed:
     password: 
     platform: linux
     hostname: 192.168.121.112
+networkutils:
+    username: 
+    password: 
+    platform: linux
+    hostname: 192.168.121.114
 nginx1:
     username: 
     password: 

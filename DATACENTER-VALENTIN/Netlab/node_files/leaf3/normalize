@@ -6,4 +6,7 @@ interface Ethernet1
 interface Ethernet2
  shutdown
  mac-address caf0.0005.0002
+!
+interface Ethernet3
+ shutdown
 

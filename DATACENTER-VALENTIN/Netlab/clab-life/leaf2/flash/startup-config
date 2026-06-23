@@ -1,9 +1,9 @@
-! Startup-config last modified at Mon Jun 22 07:54:00 2026 by admin
+! Startup-config last modified at Mon Jun 22 15:10:37 2026 by admin
 ! device: leaf2 (cEOSLab, EOS-4.36.1F-48405728.4361F.1 (engineering build))
 !
 no aaa root
 !
-username admin privilege 15 role network-admin secret sha512 $6$JFJ6sPf15UoSGwjy$wv2gxzz7s3yORCtv3zk6k910/17IZGCm6pCEeQLM/l3Ai7BJhby80z3GTxcxiZOHf8uJe.h8RN4JoS6SccJWl0
+username admin privilege 15 role network-admin secret sha512 $6$PaS1ukfVXrzDpKch$4Msov6FG1.LW1nU/OhgKjQjtBoqJFwiDYrTIxdA/dhHMguI9HHx41CMyczjDkhFjIxmVvWkXuRzA1fO6wRUHG.
 !
 management api http-commands
    no shutdown
@@ -23,6 +23,7 @@ ip host grafana 10.255.10.2
 ip host leaf1 10.0.0.1 10.255.1.2 10.255.2.2
 ip host leaf3 10.0.0.3 10.255.1.10 10.255.2.10
 ip host librespeed 172.16.1.3
+ip host networkutils 172.16.2.1
 ip host nginx1 172.16.1.1
 ip host nginx2 172.16.1.2
 ip host prometheus 10.255.11.2
@@ -44,6 +45,9 @@ system l1
 !
 vlan 560
    name web
+!
+vlan 570
+   name machines
 !
 vrf instance management
 !
@@ -88,12 +92,16 @@ interface Management0
 !
 interface Vlan560
    description VLAN web (560) -> [nginx1,nginx2,leaf1,librespeed,remotedesktop]
-   ip address 172.16.1.254/24
+   ip address virtual 172.16.1.254/24
+!
+interface Vlan570
+   ip address virtual 172.16.2.254/24
 !
 interface Vxlan1
    vxlan source-interface Loopback0
    vxlan udp-port 4789
    vxlan vlan 560 vni 560100
+   vxlan vlan 570 vni 570100
 !
 ip virtual-router mac-address 00:1c:73:00:00:99
 !
@@ -120,6 +128,11 @@ router bgp 65899
    vlan 560
       rd 10.0.0.2:560
       route-target both 65899:560
+      redistribute learned
+   !
+   vlan 570
+      rd 10.0.0.2:570
+      route-target both 65899:570
       redistribute learned
    !
    address-family evpn

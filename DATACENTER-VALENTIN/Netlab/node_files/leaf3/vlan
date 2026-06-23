@@ -1,1 +1,11 @@
+vlan 570
+ name machines
+!
+
+!
+interface Ethernet3
+ switchport
+ switchport access vlan 570
+!
+interface Vlan570
 

@@ -29,6 +29,8 @@ all:
           ansible_host: 192.168.121.107
         clab-life-librespeed:
           ansible_host: 192.168.121.112
+        clab-life-networkutils:
+          ansible_host: 192.168.121.114
         clab-life-nginx1:
           ansible_host: 192.168.121.110
         clab-life-nginx2:

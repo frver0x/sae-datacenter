@@ -2,7 +2,7 @@
 !
 no aaa root
 !
-username admin privilege 15 role network-admin secret sha512 $6$JFJ6sPf15UoSGwjy$wv2gxzz7s3yORCtv3zk6k910/17IZGCm6pCEeQLM/l3Ai7BJhby80z3GTxcxiZOHf8uJe.h8RN4JoS6SccJWl0
+username admin privilege 15 role network-admin secret sha512 $6$PaS1ukfVXrzDpKch$4Msov6FG1.LW1nU/OhgKjQjtBoqJFwiDYrTIxdA/dhHMguI9HHx41CMyczjDkhFjIxmVvWkXuRzA1fO6wRUHG.
 !
 management api http-commands
    no shutdown
@@ -22,6 +22,7 @@ ip host grafana 10.255.10.2
 ip host leaf1 10.0.0.1 10.255.1.2 10.255.2.2
 ip host leaf3 10.0.0.3 10.255.1.10 10.255.2.10
 ip host librespeed 172.16.1.3
+ip host networkutils 172.16.2.1
 ip host nginx1 172.16.1.1
 ip host nginx2 172.16.1.2
 ip host prometheus 10.255.11.2

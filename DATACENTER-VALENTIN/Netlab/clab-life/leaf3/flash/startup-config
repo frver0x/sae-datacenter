@@ -1,9 +1,9 @@
-! Startup-config last modified at Mon Jun 22 07:51:35 2026 by root
+! Startup-config last modified at Mon Jun 22 15:10:46 2026 by admin
 ! device: leaf3 (cEOSLab, EOS-4.36.1F-48405728.4361F.1 (engineering build))
 !
 no aaa root
 !
-username admin privilege 15 role network-admin secret sha512 $6$s.TZy0SXMEtX.zY3$WUox3pg1TBifJUJr2f2.qmrrtC5kiH.D8I.pgaAMnY0FBdHNedODNUSlxksPwMABjT5u22ipGv3d.9rLMGzlP0
+username admin privilege 15 role network-admin secret sha512 $6$J9IxIjZTg.nuJr3x$KsgBxWK.qUYi2.yvCT9/te175h34p3E4nUQ5uWMKPZqJikUu3WzTCSLyR58mrihjI0r8YcR9PADdVkZSowTav/
 !
 management api http-commands
    no shutdown
@@ -15,13 +15,39 @@ no service interface inactive port-id allocation disabled
 !
 service routing protocols model multi-agent
 !
+logging monitor debugging
+!
 hostname leaf3
+ip host bleaf 10.0.0.4 10.202.8.205 10.255.1.14 10.255.2.14
+ip host grafana 10.255.10.2
+ip host leaf1 10.0.0.1 10.255.1.2 10.255.2.2
+ip host leaf2 10.0.0.2 10.255.1.6 10.255.2.6
+ip host librespeed 172.16.1.3
+ip host networkutils 172.16.2.1
+ip host nginx1 172.16.1.1
+ip host nginx2 172.16.1.2
+ip host prometheus 10.255.11.2
+ip host remotedesktop 172.16.1.4
+ip host sflowrt 10.255.9.2
+ip host spine1 10.255.0.1 10.255.1.1 10.255.1.5 10.255.1.9 10.255.1.13 10.255.3.1 10.255.9.1 10.255.10.1 10.255.11.1
+ip host spine2 10.255.0.2 10.255.2.1 10.255.2.5 10.255.2.9 10.255.2.13 10.255.3.2
+!
+sflow sample 1000
+sflow destination 10.255.9.2
+sflow source-interface Loopback0
+sflow run
 !
 spanning-tree mode mstp
 !
 system l1
    unsupported speed action error
    unsupported error-correction action error
+!
+vlan 560
+   name web
+!
+vlan 570
+   name machines
 !
 vrf instance management
 !
@@ -33,17 +59,86 @@ management api netconf
    transport ssh default
       vrf management
 !
+aaa authorization exec default local
+!
 interface Ethernet1
+   description leaf3 -> spine1
+   mac-address ca:f0:00:05:00:01
+   no switchport
+   ip address 10.255.1.10/30
 !
 interface Ethernet2
+   description leaf3 -> spine2
+   mac-address ca:f0:00:05:00:02
+   no switchport
+   ip address 10.255.2.10/30
+!
+interface Ethernet3
+   description [Access VLAN machines] leaf3 -> networkutils
+   switchport access vlan 570
+!
+interface Loopback0
+   ip address 10.0.0.3/32
 !
 interface Management0
    vrf management
    ip address 192.168.121.105/24
+   no lldp transmit
+   no lldp receive
 !
-no ip routing
+interface Vlan560
+   ip address virtual 172.16.1.254/24
+!
+interface Vlan570
+   description VLAN machines (570) -> [networkutils] [stub]
+   ip address virtual 172.16.2.254/24
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 560 vni 560100
+   vxlan vlan 570 vni 570100
+!
+ip virtual-router mac-address 00:1c:73:00:00:99
+!
+ip routing
 no ip routing vrf management
 !
 ip route vrf management 0.0.0.0/0 192.168.121.1
+!
+router bgp 65899
+   maximum-paths 2 ecmp 2
+   neighbor 10.255.0.1 remote-as 65899
+   neighbor 10.255.0.1 update-source Loopback0
+   neighbor 10.255.0.1 description overlay leaf3 -> spine1
+   neighbor 10.255.0.1 send-community extended
+   neighbor 10.255.0.2 remote-as 65899
+   neighbor 10.255.0.2 update-source Loopback0
+   neighbor 10.255.0.2 description overlay leaf3 -> spine2
+   neighbor 10.255.0.2 send-community extended
+   neighbor 10.255.1.9 remote-as 65899
+   neighbor 10.255.1.9 description underlay leaf3 -> spine1
+   neighbor 10.255.2.9 remote-as 65899
+   neighbor 10.255.2.9 description underlay leaf3 -> spine2
+   !
+   vlan 560
+      rd 10.0.0.3:560
+      route-target both 65899:560
+      redistribute learned
+   !
+   vlan 570
+      rd 10.0.0.3:570
+      route-target both 65899:570
+      redistribute learned
+   !
+   address-family evpn
+      neighbor 10.255.0.1 activate
+      neighbor 10.255.0.2 activate
+   !
+   address-family ipv4
+      neighbor 10.255.1.9 activate
+      neighbor 10.255.2.9 activate
+      network 10.0.0.3/32
+      redistribute connected
 !
 end

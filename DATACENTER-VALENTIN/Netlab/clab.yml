@@ -119,6 +119,15 @@ topology:
       group: netlab_no_reload,netlab_no_collect
       binds:
       - node_files/-shared-hosts:/etc/hosts:ro
+    networkutils:
+      mgmt-ipv4: 192.168.121.114
+      kind: linux
+      restart-policy: 'no'
+      image: amouat/network-utils
+      runtime: docker
+      group: netlab_no_reload,netlab_no_collect
+      binds:
+      - node_files/-shared-hosts:/etc/hosts:ro
 
 
   links:
@@ -173,3 +182,6 @@ topology:
   - endpoints:
     - "bleaf:et3"
     - "macvlan:ens18"
+  - endpoints:
+    - "leaf3:et3"
+    - "networkutils:eth1"

@@ -2,6 +2,9 @@ enable
 conf t
 vlan 560
   name web
+
+vlan 570
+  name machines
   
 interface Ethernet3
   switchport access vlan 560
@@ -12,13 +15,16 @@ interface Loopback0
 ip virtual-router mac-address 00:1c:73:00:00:99
 
 interface Vlan560
-  ip address 172.16.1.254/24
-  ip virtual-router address 172.16.1.254
+  ip address virtual 172.16.1.254/24
+
+interface Vlan570
+  ip address virtual 172.16.2.254/24
   
 interface Vxlan1
   vxlan source-interface Loopback0
   vxlan udp-port 4789
   vxlan vlan 560 vni 560100
+  vxlan vlan 570 vni 570100
   
 router bgp 65899
   neighbor 10.255.0.1 remote-as 65899
@@ -37,6 +43,11 @@ router bgp 65899
   vlan 560
       rd 10.0.0.2:560
       route-target both 65899:560
+      redistribute learned
+  !
+  vlan 570
+      rd 10.0.0.2:570
+      route-target both 65899:570
       redistribute learned
   !
   address-family evpn
