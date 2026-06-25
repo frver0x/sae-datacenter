@@ -61,7 +61,7 @@ Le VLAN 560 est étendu niveau L2  entre nos deux sites : on partage le même so
 (172.16.1.0/24), chacun avec une plage d'adresses réservée pour éviter qu'on se
 marche dessus avec les mêmes IP.
 
-### Schéma de l'infrastructure
+### Schéma de l'infrastructure (Valentin)
 
 ![Schéma de l'infrastructure](/Images/Datacenter1.png)
 
