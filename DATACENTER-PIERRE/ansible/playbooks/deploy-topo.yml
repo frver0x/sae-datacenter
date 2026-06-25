@@ -1,7 +1,8 @@
 ---
 # Usage: ansible-playbook playbooks/deploy-topo.yml -e "topo=topo-ebgp"
+#        ansible-playbook playbooks/deploy-topo.yml -e "topo=vxlan-lab3 target=vm221"
 - name: Deploy containerlab topology
-  hosts: vm220
+  hosts: "{{ target | default('vm220') }}"
   vars:
     topo: "topo-ebgp"
   tasks:

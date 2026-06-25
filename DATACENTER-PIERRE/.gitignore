@@ -4,8 +4,19 @@ ansible/collections/
 
 # Secrets / clés
 *.pem
+*.key
 id_ed25519*
+*.env
 .env
+.env.*
+!.env.example
+
+# Vault Obsidian (notes brutes, secrets non rédigés — version rédigée dans docs/notes/)
+Obsidian-SAE4D01/
+*.obsidian/
+
+# Exports Notion bruts (zip ExportBlock, UUID)
+*ExportBlock*.zip
 
 # Résultats locaux
 results/

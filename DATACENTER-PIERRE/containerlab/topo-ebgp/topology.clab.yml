@@ -72,6 +72,13 @@ topology:
         - /bin/sh -c 'ip link add veth-h0 type veth peer name veth-h1 2>/dev/null || true; ip addr add 172.16.30.253/24 dev veth-h0 2>/dev/null || true; ip link set veth-h0 up; ip link set veth-h1 master br-val; ip link set veth-h1 up; MAC=$(ip link show veth-h1 | awk "/link.ether/ {print \$2}"); ip neigh replace 172.16.30.253 lladdr $MAC dev br-val nud permanent; true'
         - /bin/sh -c 'ip link add veth-h2 type veth peer name veth-h3 2>/dev/null || true; ip addr add 172.16.31.253/24 dev veth-h2 2>/dev/null || true; ip link set veth-h2 up; ip link set veth-h3 master br-val2; ip link set veth-h3 up; MAC=$(ip link show veth-h3 | awk "/link.ether/ {print \$2}"); ip neigh replace 172.16.31.253 lladdr $MAC dev br-val2 nud permanent; true'
         - /bin/sh -c 'ip link set eth4 up; ip link add link eth4 name eth4.560 type vlan id 560 2>/dev/null || true; ip link set eth4.560 master br-val mtu 1450 up; ip link add link eth4 name eth4.570 type vlan id 570 2>/dev/null || true; ip link set eth4.570 master br-val2 mtu 1450 up; true'
+        # access port VLAN 570 (VNI 570100) vers l'hôte dédié lxc-pierre
+        - /bin/sh -c 'ip link set eth5 master br-val2 mtu 1450 up 2>/dev/null || true; true'
+        # Fix DUP! : la gateway .254 est une anycast VARP repartie sur 4 VTEP Valentin
+        # (10.0.0.1-4) et sa vMAC 00:1c:73:00:00:99 n'est PAS annoncee en EVPN type-2.
+        # => unknown-unicast floode aux 4 VTEP -> les 4 gateways renvoient chacune une
+        # copie de la reponse -> DUP!. On epingle la vMAC gateway sur UN seul VTEP.
+        - /bin/sh -c 'bridge fdb replace 00:1c:73:00:00:99 dev vxlan570100 dst 10.0.0.1 2>/dev/null; bridge fdb replace 00:1c:73:00:00:99 dev vxlan560100 dst 10.0.0.1 2>/dev/null; true'
 
     leaf4:
       kind: linux
@@ -103,6 +110,15 @@ topology:
       exec:
         - /bin/sh -c 'ip link set eth1 up; ip link add link eth1 name eth1.560 type vlan id 560 2>/dev/null || true; ip addr add 172.16.30.252/24 dev eth1.560 2>/dev/null || true; ip link set eth1.560 mtu 1450 up; ip link add link eth1 name eth1.570 type vlan id 570 2>/dev/null || true; ip addr add 172.16.31.252/24 dev eth1.570 2>/dev/null || true; ip link set eth1.570 mtu 1450 up; ip route add default via 172.16.30.254 2>/dev/null || true; true'
 
+    # Hôte dédié inter-DC : access port dans le VLAN 570 (VNI 570100), branché directement
+    # sur le bridge VTEP br-val2 du border-leaf. Sous-réseau L2 partagé 172.16.31.0/24 →
+    # le fabric Arista de Valentin le voit comme un hôte local et peut le pinguer (EVPN/VXLAN).
+    lxc-pierre:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - /bin/sh -c 'ip link set eth1 mtu 1450 up; ip addr add 172.16.31.10/24 dev eth1 2>/dev/null || true; ip route replace default via 172.16.31.254 2>/dev/null || true; true'
+
   links:
     - endpoints: [spine1:eth1, leaf1:eth1]
     - endpoints: [spine1:eth2, leaf2:eth1]
@@ -120,3 +136,4 @@ topology:
     - endpoints: [spine2:eth5, leaf4:eth2]
     - endpoints: [leaf4:eth3, bleaf:eth4]
     - endpoints: [leaf4:eth4, networkutils:eth1]
+    - endpoints: [bleaf:eth5, lxc-pierre:eth1]

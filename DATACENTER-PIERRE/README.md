@@ -7,7 +7,7 @@ Fabric datacenter leaf-spine (Clos) montée en lab **containerlab + FRR**.
 (EVPN/VXLAN avec le fabric Arista de Valentin). 5 technologies de routage comparées par benchmark chiffré,
 supervisées en Grafana, industrialisées en Ansible + CI GitHub Actions.
 
-📄 **Compte-rendu complet → [`docs/CR-COMPLET.md`](docs/CR-COMPLET.md)**
+📄 **Compte-rendu complet → sur Notion** (espace SAE4D01 DevCloud, page `SYNTH_SAE4D01_MALOT_URTADO`).
 
 ## Architecture retenue
 
@@ -42,18 +42,74 @@ Accès campus : Tailscale. Outils : containerlab 0.76.1, FRR 10.6.1, Alpine.
 ## Quickstart
 
 ```bash
-git clone https://github.com/Pierre3474/SAE-DevCloud
-cd SAE-DevCloud/DATACENTER-PIERRE
+git clone https://github.com/frver0x/sae-datacenter
+cd sae-datacenter/DATACENTER-PIERRE
 
 # Bootstrap d'une Debian nue (Docker + containerlab + images, puis déploiement)
 sudo bash setup.sh fabric     # topo-ebgp + EVPN inter-DC
 sudo bash setup.sh bench      # prépare les topos + benchmark
-
-# ou via Ansible (push SSH)
-cd ansible && ansible-galaxy collection install -r requirements.yml
-ansible-playbook playbooks/bootstrap.yml
-ansible-playbook playbooks/deploy-topo.yml -e "topo=topo-ebgp"
 ```
+
+Pour piloter les VM à distance (push SSH), voir **[Ansible](#ansible-d%C3%A9ploiement-%C3%A0-distance)** ci-dessous.
+
+## Ansible (déploiement à distance)
+
+Toutes les commandes se lancent **depuis le dossier `ansible/`** (qui contient
+`ansible.cfg` pointant déjà l'inventaire `inventory/hosts.yml`).
+
+### Prérequis (poste de contrôle)
+
+```bash
+cd sae-datacenter/DATACENTER-PIERRE/ansible
+
+# 1. Collections requises (community.docker)
+ansible-galaxy collection install -r requirements.yml
+
+# 2. Clé SSH : l'inventaire utilise root@VM avec ~/.ssh/id_ed25519
+#    (générer + copier sur les 2 VM si pas déjà fait)
+ssh-keygen -t ed25519                          # si pas de clé
+ssh-copy-id root@10.202.8.220                   # VM220 (prod)
+ssh-copy-id root@10.202.8.221                   # VM221 (lab/bench)
+
+# 3. Vérifier la connexion (Tailscale up côté campus)
+ansible all -m ping
+```
+
+`inventory/hosts.yml` définit le groupe `containerlab_hosts` (VM220 `10.202.8.220`,
+VM221 `10.202.8.221`). `group_vars/all.yml` fixe les versions containerlab 0.76.1,
+FRR 10.6.1 et la liste des 5 topologies.
+
+### Ordre de lancement
+
+```bash
+# 1. Bootstrap : installe Docker + containerlab + pull images FRR/Alpine (idempotent)
+ansible-playbook playbooks/bootstrap.yml
+
+# 2. Sync : copie les topos containerlab/ + benchmark.sh du repo vers /root sur VM220
+ansible-playbook playbooks/sync-topologies.yml
+
+# 3. Deploy : monte une topologie (défaut topo-ebgp). -e topo=... pour en choisir une
+ansible-playbook playbooks/deploy-topo.yml -e "topo=topo-ebgp"
+ansible-playbook playbooks/deploy-topo.yml -e "topo=topo-evpn"
+
+# 4. Destroy : démonte la topologie (--cleanup)
+ansible-playbook playbooks/destroy-topo.yml -e "topo=topo-ebgp"
+```
+
+### Benchmark
+
+```bash
+# Lance benchmark.sh sur VM220 (async 900 s) et rapatrie les JSON dans ../results/
+ansible-playbook playbooks/benchmark.yml
+```
+
+| Playbook | Hôte ciblé | Rôle |
+|----------|-----------|------|
+| `bootstrap.yml` | `containerlab_hosts` (VM220+221) | Docker + containerlab + images |
+| `sync-topologies.yml` | `vm220` | copie topos + `benchmark.sh` vers `/root` |
+| `deploy-topo.yml` | `vm220` | `containerlab deploy` (var `topo`) |
+| `destroy-topo.yml` | `vm220` | `containerlab destroy --cleanup` (var `topo`) |
+| `benchmark.yml` | `vm220` | run `benchmark.sh` + fetch JSON |
 
 ## Les 5 topologies (`containerlab/`)
 
@@ -96,7 +152,7 @@ docker exec clab-topo-ebgp-bleaf vtysh -c "show evpn mac vni 560100"      # MAC 
 # preuve data-plane : tcpdump -ni eth3 udp port 4789  → VXLAN vni 560100 + ICMP encapsulé
 ```
 
-Capture d'encapsulation reproductible : `docs/captures/evpn-vxlan-interdc.pcap` (filtre Wireshark `vxlan`).
+Capture d'encapsulation reproductible : `captures/evpn-vxlan-interdc.pcap` (filtre Wireshark `vxlan`).
 
 ## Monitoring & CI/CD
 
@@ -116,10 +172,9 @@ docker exec clab-topo-ebgp-spine1 vtysh -c "show bgp summary"
 bash containerlab/benchmark.sh
 ```
 
-## Documentation (`docs/`)
+## Documentation
 
-- **[`CR-COMPLET.md`](docs/CR-COMPLET.md)** — compte-rendu complet (18 sections + annexe configs : architecture,
-  5 labs, EVPN/VXLAN, IRB/Anycast, inter-DC, résilience, benchmark, observabilité, IaC/CI-CD).
-- `DEMARCHE.md`, `FICHE-ORAL.md`, `Infra-Physique.md`, `Leaf-Spine.md` — démarche, oral, infra physique.
-- `notes/`, `notion/` — journaux de travail · `pdf/` — exports · `captures/` — pcap.
+- **Compte-rendu complet → Notion** (page `SYNTH_SAE4D01_MALOT_URTADO`, espace SAE4D01 DevCloud) :
+  architecture, 5 labs, EVPN/VXLAN, IRB/Anycast, inter-DC, résilience, benchmark, observabilité, IaC/CI-CD.
+- `captures/` — pcap d'encapsulation VXLAN inter-DC.
 - `screens/` — captures (BGP, EVPN, Wireshark, Grafana, topologies).

@@ -1,7 +1,7 @@
 ---
 # Copie les topologies containerlab + benchmark.sh du repo vers /root sur la VM.
 # Usage: ansible-playbook playbooks/sync-topologies.yml
-- name: Sync containerlab topologies to host
+- name: Sync containerlab topologies to VM220 (prod)
   hosts: vm220
   vars:
     repo_clab: "{{ playbook_dir }}/../../containerlab"
@@ -18,3 +18,15 @@
         src: "{{ repo_clab }}/benchmark.sh"
         dest: /root/benchmark.sh
         mode: "0755"
+
+- name: Sync labs VXLAN to VM221 (bench)
+  hosts: vm221
+  vars:
+    repo_clab: "{{ playbook_dir }}/../../containerlab"
+  tasks:
+    - name: Copy lab topology directories
+      ansible.builtin.copy:
+        src: "{{ repo_clab }}/{{ item }}/"
+        dest: "/root/{{ item }}/"
+        mode: preserve
+      loop: "{{ lab_topologies }}"

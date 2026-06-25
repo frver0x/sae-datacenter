@@ -8,3 +8,8 @@ topologies:
   - topo-ospf
   - topo-mixed
   - topo-evpn
+
+# Labs VXLAN statiques (tournent sur VM221, pas VM220).
+lab_topologies:
+  - vxlan-lab3
+  - vxlan-lab4
