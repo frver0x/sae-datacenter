@@ -9,19 +9,51 @@ supervisées en Grafana, industrialisées en Ansible + CI GitHub Actions.
 
 📄 **Compte-rendu complet → sur Notion** (espace SAE4D01 DevCloud, page `SYNTH_SAE4D01_MALOT_URTADO`).
 
+---
+
+## Sommaire
+
+1. [Architecture retenue](#architecture-retenue)
+2. [Infrastructure](#infrastructure)
+3. [Quickstart](#quickstart)
+4. [Ansible (déploiement à distance)](#ansible-déploiement-à-distance)
+5. [Les 5 topologies](#les-5-topologies-containerlab)
+6. [Benchmark](#benchmark-iperf3-vm221)
+7. [Inter-DC EVPN/VXLAN](#inter-dc-evpnvxlan-border-leaf-bleaf)
+8. [Monitoring & CI/CD](#monitoring--cicd)
+9. [Commandes utiles](#commandes-utiles)
+10. [Documentation](#documentation)
+
+---
+
 ## Architecture retenue
 
+```mermaid
+flowchart TB
+    DCV["🏢 Datacenter Valentin<br/>(Arista · AS65899)"]
+    bleaf["bleaf · AS65080<br/>VTEP 10.202.8.253<br/>VNI 560100 + 570100"]
+    spine1["spine1 · AS65081"]
+    spine2["spine2 · AS65082"]
+    leaf1["leaf1 · AS65083"]
+    leaf2["leaf2 · AS65084"]
+    leaf3["leaf3 · AS65085"]
+    lxc["LXC web &amp; services<br/>192.168.80-82.x"]
+
+    DCV <-->|"EVPN/VXLAN inter-DC"| bleaf
+    bleaf --- spine1 & spine2
+    spine1 --- leaf1 & leaf2 & leaf3
+    spine2 --- leaf1 & leaf2 & leaf3
+    leaf1 & leaf2 & leaf3 --- lxc
+
+    classDef border fill:#fde68a,stroke:#b45309,color:#000
+    classDef spine  fill:#bfdbfe,stroke:#1d4ed8,color:#000
+    classDef leaf   fill:#bbf7d0,stroke:#15803d,color:#000
+    class bleaf border
+    class spine1,spine2 spine
+    class leaf1,leaf2,leaf3 leaf
 ```
-   Campus 10.202.0.0/16  ◄── EVPN/VXLAN inter-DC ──►  Datacenter Valentin (Arista, AS65899)
-            │
-      [bleaf AS65080]   VTEP 10.202.8.253  ·  VNI 560100 (web) + 570100 (machines)
-       ╱          ╲
- [spine1 65081] [spine2 65082]          ← underlay eBGP /31, ECMP, BFD
-   ╱    │   ╲   ╱    │   ╲
-[leaf1][leaf2][leaf3]                   ← AS65083 / 65084 / 65085
-   │      │      │
- [LXC web & services 192.168.80-82.x]
-```
+
+> Underlay **eBGP /31** (ECMP + BFD) · Overlay **VXLAN/EVPN** · liens spine↔leaf = Clos full-mesh.
 
 - **Underlay** : eBGP (RFC 7938, un AS par équipement), liens /31, **ECMP + BFD**. Pas de RR ni de
   next-hop-self à gérer (contraste avec l'iBGP du datacenter de Valentin).
