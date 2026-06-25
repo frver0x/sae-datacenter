@@ -63,7 +63,7 @@ marche dessus avec les mêmes IP.
 
 ### Schéma de l'infrastructure
 
-![Schéma de l'infrastructure](/Images/datacenter_valentin.png)
+![Schéma de l'infrastructure Valentin](/Images/Datacenter1.png)
 
 
 ## Deuxième Datacenter — Pierre (eBGP multi-AS)
@@ -86,6 +86,8 @@ native du next-hop, ECMP naturel via l'AS-path.
   n'impacte pas le débit, la différence est ailleurs (convergence, scalabilité, policy).
 - **Supervision** : Prometheus + Grafana + exporter maison (`clab_exporter.py`). **IaC** : Ansible +
   CI GitHub Actions (validation FRR / YAML / scripts).
+
+![Schéma de l'infrastructure Valentin](/Images/Datacenter2.png)
 
 ### Interconnexion EVPN — côté Pierre
 
